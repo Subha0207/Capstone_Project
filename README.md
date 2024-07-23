@@ -64,14 +64,14 @@ Welcome to the Pizza Web App! This application allows users to enjoy a delightfu
 ## Setup and Deployment
 
 1. **Frontend**:
-   - Developed using Flutter Web. Ensure you have Flutter installed and set up for web development.
+   - Developed using Flutter Web. 
    
 2. **Backend**:
-   - Built with C# Web API. Ensure you have .NET SDK installed and set up.
+   - Built with C# Web API.
    
 3. **Database**:
-   - Uses SQL. Ensure you have SQL Server or Azure SQL Database set up.
+   - Uses SQL.
    
 4. **Deployment**:
-   - Deployed on Azure. Follow Azure deployment guidelines for Flutter web apps and C# Web APIs.
+   - Deployed on Azure. 
 
