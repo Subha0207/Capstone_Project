@@ -6,7 +6,7 @@ Welcome to the Pizza Web App! This application allows users to enjoy a delightfu
 
 ## Unique Features
 
-- **Automatic Location Detection**: Users' locations are automatically detected for a more personalized experience.
+- **OAuth Authentication**: Users can securely log in and register using OAuth authentication with Google
 - **Pizza Customization**: Users can customize their pizzas based on size, crust type, and toppings.
 - **Pizza Filtering**: Users can filter pizzas by vegetarian and non-vegetarian options.
 - **New Pizza Discount**: A 5% discount is applied to pizzas posted within the last week.
@@ -16,7 +16,7 @@ Welcome to the Pizza Web App! This application allows users to enjoy a delightfu
 
 ## Technologies
 
-- **Frontend**: Flutter Web
+- **Frontend**: Flutter web
 - **Backend**: C# Web API
 - **Database**: SQL
 - **Deployment**: Azure
@@ -64,7 +64,7 @@ Welcome to the Pizza Web App! This application allows users to enjoy a delightfu
 ## Setup and Deployment
 
 1. **Frontend**:
-   - Developed using Flutter Web. 
+   - Developed using Flutter web. 
    
 2. **Backend**:
    - Built with C# Web API.
