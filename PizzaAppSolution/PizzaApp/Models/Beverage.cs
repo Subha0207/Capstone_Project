@@ -22,9 +22,11 @@ namespace PizzaApp.Models
         [Required]
         public bool IsBestSeller { get; set; }
 
-        public byte[] Image { get; set; }
+        public string Image { get; set; }
 
         [Required]
         public DateTime UploadDate { get; set; }
+        public bool IsAvailable { get; set; }
+        public decimal Cost { get; set; }
     }
 }

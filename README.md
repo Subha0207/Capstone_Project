@@ -2,7 +2,7 @@
 
 ## Overview
 
-Welcome to the Pizza Web App! This application allows users to enjoy a delightful pizza experience with a Flutter web frontend, C# Web API backend, and SQL database. The app is deployed on Azure and features a seamless user experience with automated location detection, customizable filters, and recommendations. Admins can manage the app's inventory and track orders with ease.
+Welcome to the Pizza Web App! This application allows users to enjoy a delightful pizza experience with a HTML,CSS,JS web frontend, C# Web API backend, and SQL database. The app is deployed on Azure and features a seamless user experience with automated location detection, customizable filters, and recommendations. Admins can manage the app's inventory and track orders with ease.
 
 ## Unique Features
 
@@ -16,7 +16,7 @@ Welcome to the Pizza Web App! This application allows users to enjoy a delightfu
 
 ## Technologies
 
-- **Frontend**: Flutter web
+- **Frontend**: HTML,CSS,JS
 - **Backend**: C# Web API
 - **Database**: SQL
 - **Deployment**: Azure
@@ -64,7 +64,7 @@ Welcome to the Pizza Web App! This application allows users to enjoy a delightfu
 ## Setup and Deployment
 
 1. **Frontend**:
-   - Developed using Flutter web. 
+   - Developed using HTML,CSS,JS. 
    
 2. **Backend**:
    - Built with C# Web API.

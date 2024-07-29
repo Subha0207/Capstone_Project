@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beverages</title>
+    <link rel="stylesheet" href="/css/font.css">
+    <link rel="stylesheet" href="/css/beverage_style.css">
+
+</head>
+
+<body>
+
+    <div class="container" id="beverageContainer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const beverageContainer = document.getElementById('beverageContainer');
+
+            fetch('https://localhost:7028/api/Beverage')
+                .then(response => response.json())
+                .then(data => {
+                    const currentDate = new Date();
+                    data.forEach(beverage => {
+                        const beverageCard = document.createElement('div');
+                        beverageCard.classList.add('beverage-card');
+
+                        const beverageContent = document.createElement('div');
+                        beverageContent.classList.add('beverage-content');
+
+                        const beverageImageContainer = document.createElement('div');
+                        beverageImageContainer.classList.add('beverage-img-container');
+
+                        const beverageImage = document.createElement('img');
+                        beverageImage.src = beverage.image;
+                        beverageImage.alt = beverage.name;
+                        beverageImage.classList.add('beverage-img');
+
+                        const beverageBadgeContainer = document.createElement('div');
+                        beverageBadgeContainer.classList.add('beverage-badge-container');
+
+                        if (beverage.isBestSeller) {
+                            const beverageBestSeller = document.createElement('span');
+                            beverageBestSeller.textContent = 'Bestseller';
+                            beverageBestSeller.classList.add('beverage-bestseller');
+                            beverageBadgeContainer.appendChild(beverageBestSeller);
+                        }
+
+                        const uploadDate = new Date(beverage.uploadDate);
+                        const timeDifference = currentDate - uploadDate;
+                        const daysDifference = timeDifference / (1000 * 3600 * 24);
+
+                        if (daysDifference <= 7) {
+                            const beverageNew = document.createElement('span');
+                            beverageNew.textContent = 'New';
+                            beverageNew.classList.add('beverage-new');
+                            beverageBadgeContainer.appendChild(beverageNew);
+                        }
+
+                        const beverageButton = document.createElement('button');
+                        beverageButton.textContent = 'Add';
+                        beverageButton.classList.add('beverage-button');
+
+                        const beverageName = document.createElement('h2');
+                        beverageName.classList.add('beverage-title');
+                        beverageName.textContent = beverage.name;
+
+                        const beverageDescription = document.createElement('p');
+                        beverageDescription.classList.add('beverage-description');
+                        beverageDescription.textContent = beverage.description;
+
+                        const beverageVolume = document.createElement('p');
+                        beverageVolume.classList.add('beverage-volume');
+                        beverageVolume.textContent = `${beverage.cost}`;
+
+                        const beverageCost = document.createElement('p');
+                        beverageVolume.classList.add('beverage-cost');
+                        beverageVolume.textContent = `Rs.${beverage.cost}`;
+
+                        beverageContent.appendChild(beverageName);
+                        beverageContent.appendChild(beverageDescription);
+                        beverageContent.appendChild(beverageVolume);
+                        beverageContent.appendChild(beverageCost);
+
+                        beverageImageContainer.appendChild(beverageImage);
+                        beverageImageContainer.appendChild(beverageButton);
+
+                        beverageCard.appendChild(beverageContent);
+                        beverageCard.appendChild(beverageImageContainer);
+                        beverageCard.appendChild(beverageBadgeContainer);
+
+                        beverageContainer.appendChild(beverageCard);
+                    });
+                })
+                .catch(error => console.error('Error fetching beverage data:', error));
+        });
+    </script>
+</body>
+
+</html>

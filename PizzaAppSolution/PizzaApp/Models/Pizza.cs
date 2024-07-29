@@ -15,23 +15,20 @@ namespace PizzaApp.Models
         public string Description { get; set; }
 
         [Required]
-        public Size PizzaSize { get; set; }
-
-        [Required]
-        public Crust CrustType { get; set; }
-
-        [Required]
         public bool IsVeg { get; set; }
 
         [Required]
         public DateTime UploadDate { get; set; }
 
-        public byte[] Image { get; set; }
+        public string Image { get; set; }
 
         [Required]
         public bool IsBestSeller { get; set; }
 
-        public ICollection<PizzaTopping> PizzaToppings { get; set; }
+        public decimal Cost { get; set; }
+        public bool IsAvailable { get; set; }
+
+       
 
     }
 }

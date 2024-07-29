@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PizzaHub OAuth Login</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f2f2f2;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .login-card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            padding: 40px 30px;
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .login-card:hover {
+            transform: translateY(-10px);
+        }
+
+        h2 {
+            color: #E60023;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .logo {
+            align-items: center;
+            justify-content: center;
+            width: 120px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: #555;
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+
+        .login-button {
+            background-color: #E60023;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .login-button:hover {
+            background-color: #C0001A;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <div class="login-card">
+        <h2>Welcome to PizzaHub</h2>
+        <img src="/images/pizza_logo.png" alt="PizzaHub Logo" class="logo">
+        <p>Login for Fresh, Hot, and Delicious</p>
+
+        <div id="g_id_onload" data-client_id="477896352233-42j7dt9ure6epjnlmcaj8dtlesjupamr.apps.googleusercontent.com"
+            data-callback="handleCredentialResponse">
+        </div>
+        <div class="g_id_signin" data-type="standard"></div>
+    </div>
+
+    <script>
+        function handleCredentialResponse(response) {
+            const token = response.credential;
+            console.log('Token:', token);
+
+            fetch('https://localhost:7028/api/v1/auth/google', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    token: token
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    window.location.href = 'index.html';
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+</body>
+
+</html>

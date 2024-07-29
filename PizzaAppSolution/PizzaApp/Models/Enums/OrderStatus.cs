@@ -3,9 +3,9 @@
     public enum OrderStatus
     {
 
-        Pending,
-        Shipped,
-        Delivered,
-        NotDelivered
+        OrderPlaced,
+        PizzaBaked,
+        OutForDelivery,
+        Delivered
     }
 }

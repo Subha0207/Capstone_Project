@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/pizza_style.css">
+    <link rel="stylesheet" href="/css/font.css">
+    <title>Pizza Menu</title>
+</head>
+<body>
+
+    <div class="container" id="pizzaList">
+        <!-- Pizza items will be inserted here -->
+    </div>
+    
+    <div id="stepper-popup" class="stepper-popup hidden">
+        <div class="step step-1 active">
+            <h3>Choose Pizza Size</h3>
+            <label><input type="radio" name="size" value="Small"> Small</label>
+            <label><input type="radio" name="size" value="Medium"> Medium</label>
+            <label><input type="radio" name="size" value="Large"> Large</label>
+            <div class="stepper-buttons">
+                <button onclick="closeStepper()">Cancel</button>
+                <button onclick="nextStep(2)">Next</button>
+            </div>
+        </div>
+        <div class="step step-2">
+            <h3>Choose Crust Type</h3>
+            <label><input type="radio" name="crust" value="Thin"> Thin Crust</label>
+            <label><input type="radio" name="crust" value="Thick"> Thick Crust</label>
+            <label><input type="radio" name="crust" value="Cheese"> Cheese Crust</label>
+            <div class="stepper-buttons">
+                <button onclick="nextStep(1)">Back</button>
+                <button onclick="nextStep(3)">Next</button>
+            </div>
+        </div>
+        <div class="step step-3">
+            <h3>Choose Toppings</h3>
+            <label><input type="radio" name="topping" value="Pepperoni"> Pepperoni</label>
+            <label><input type="radio" name="topping" value="Mushrooms"> Mushrooms</label>
+            <label><input type="radio" name="topping" value="Onions"> Onions</label>
+            <label><input type="radio" name="topping" value="Green Peppers"> Green Peppers</label>
+            <div class="stepper-buttons">
+                <button onclick="nextStep(2)">Back</button>
+                <button onclick="nextStep(4)">Next</button>
+            </div>
+        </div>
+        <div class="step step-4">
+            <h3>Review and Add to Cart</h3>
+            <p>Size: <span id="chosen-size"></span></p>
+            <p>Crust: <span id="chosen-crust"></span></p>
+            <p>Toppings: <span id="chosen-toppings"></span></p>
+            <div class="stepper-buttons">
+                <button onclick="nextStep(3)">Back</button>
+                <button onclick="addToCart()">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+    
+    
+    <script src="/js/pizza.js"></script>
+</body>
+</html>

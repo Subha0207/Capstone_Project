@@ -17,17 +17,10 @@ namespace PizzaApp.Models
         [StringLength(100, ErrorMessage = "Email can't be longer than 100 characters.")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Password is required.")]
-        public byte[] Password { get; set; }
-
-        public byte[] PasswordSalt { get; set; }
-
         [Required(ErrorMessage = "Role is required.")]
         public UserRole Role { get; set; }
 
-        [Required(ErrorMessage = "Address is required.")]
-        [StringLength(100, ErrorMessage = "Address can't be longer than 100 characters.")]
-        public string Address { get; set; }
+
     }
 
  
