@@ -4,6 +4,32 @@
     align-items: center;
     padding: 20px;
 }
+.filter-container {
+    display: flex;
+    justify-content: center;
+}
+.topping-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; 
+}
+
+.topping-item {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+}
+
+.topping-name {
+    flex-grow: 1; 
+    text-align: left; 
+    margin-right: 20px; 
+}
+
+.topping-cost {
+    font-weight: bold;
+}
+
 
 .card {
     border: 1px solid #ccc;
@@ -108,14 +134,26 @@
     color: #fff;
 }
 
-.badge.veg {
-    background-color: #28a745;
+
+.veg {
+    background-color: green;
+    color: white;
+    margin-left: 0.5em;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 0.75em;
 }
 
-.badge.non-veg {
-    background-color: #dc3545;
+.non-veg {
+    background-color: red;
+    color: white;
+    margin-left: 0.5em;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 0.75em;
 }
-
 
 .hidden {
     display: none;
@@ -173,4 +211,19 @@
 
 .stepper-buttons button:hover {
     background-color: #c70039;
+}
+.radio-label {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 0;
+}
+
+.size-name, .crust-name {
+    flex: 1;
+}
+
+.price {
+    margin-left: auto;
+    padding-left: 10px;
 }

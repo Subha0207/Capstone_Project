@@ -1,6 +1,72 @@
-function openStepper() {
+let allPizzas = [];
+
+async function fetchVegPizzas() {
+    try {
+        const response = await fetch('https://localhost:7028/api/Pizza/veg');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const vegPizzas = await response.json();
+        return vegPizzas;
+    } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+    }
+}
+
+async function fetchNonVegPizzas() {
+    try {
+        const response = await fetch('https://localhost:7028/api/Pizza/nonVeg');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const nonVegPizzas = await response.json();
+        return nonVegPizzas;
+    } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+    }
+}
+
+async function fetchAllPizzas() {
+    try {
+        const vegPizzas = await fetchVegPizzas();
+        const nonVegPizzas = await fetchNonVegPizzas();
+        allPizzas = [...vegPizzas, ...nonVegPizzas];
+        displayItems(allPizzas, 'pizza');
+    } catch (error) {
+        console.error('There was a problem with fetching pizzas:', error);
+    }
+}
+
+function filterItems() {
+    const vegCheckbox = document.getElementById('vegCheckbox').checked;
+    const nonVegCheckbox = document.getElementById('nonVegCheckbox').checked;
+
+    const filteredPizzas = allPizzas.filter(pizza => {
+        if (vegCheckbox && nonVegCheckbox) {
+            return true;
+        } else if (vegCheckbox) {
+            return pizza.isVeg;
+        } else if (nonVegCheckbox) {
+            return !pizza.isVeg;
+        } else {
+            return true;
+        }
+    });
+
+    displayItems(filteredPizzas, 'pizza');
+}
+
+let currentPizzaCost = 0;
+
+function openStepper(pizza) {
     document.getElementById('stepper-popup').classList.remove('hidden');
     document.querySelector('.step-1').classList.add('active');
+
+    currentPizzaCost = pizza.cost;
+
+    document.getElementById('price-small').textContent = `₹${(currentPizzaCost * 1).toFixed(2)}`;
+    document.getElementById('price-medium').textContent = `₹${(currentPizzaCost * 1.5).toFixed(2)}`;
+    document.getElementById('price-large').textContent = `₹${(currentPizzaCost * 1.8).toFixed(2)}`;
 }
 
 function closeStepper() {
@@ -25,33 +91,94 @@ function nextStep(step) {
     }
 }
 
-function addToCart() {
+function addToCart(pizza) {
+    console.log(`Added to cart: ${pizza.name}`);
+    openStepper(pizza);
+}
+function updatePrice() {
+    const size = document.querySelector('input[name="size"]:checked')?.value;
+    const crust = document.querySelector('input[name="crust"]:checked')?.value;
+
+    if (!size) return;
+
+    let sizeMultiplier = 1;
+    if (size === 'Medium') {
+        sizeMultiplier = 1.4;
+    } else if (size === 'Large') {
+        sizeMultiplier = 1.8;
+    }
+
+    const basePrice = currentPizzaCost * sizeMultiplier;
+
+    let crustMultiplier = 0;
+    if (crust === 'Thick') {
+        crustMultiplier = 0.15;
+    } else if (crust === 'Cheese') {
+        crustMultiplier = 0.30;
+    }
+
+    const crustAdjustedPrice = basePrice * (1 + crustMultiplier);
+
+    document.getElementById('price-thin').textContent = `₹${(basePrice).toFixed(2)}`;
+    document.getElementById('price-thick').textContent = `₹${(basePrice * 1.15).toFixed(2)}`;
+    document.getElementById('price-cheese').textContent = `₹${(basePrice * 1.30).toFixed(2)}`;
+
+    // Calculate total topping cost
+    const toppingInputs = document.querySelectorAll('input[name="topping"]:checked');
+    let toppingCost = 0;
+    toppingInputs.forEach(input => {
+        toppingCost += parseFloat(input.getAttribute('data-cost'));
+    });
+
+    const totalPrice = crustAdjustedPrice + toppingCost;
+    document.getElementById('current-price-value').textContent = totalPrice.toFixed(2);
+}
+
+
+
+function finalAddToCart() {
     const size = document.querySelector('input[name="size"]:checked').value;
     const crust = document.querySelector('input[name="crust"]:checked').value;
     const toppings = Array.from(document.querySelectorAll('input[name="topping"]:checked'))
         .map(checkbox => checkbox.value)
         .join(', ');
 
-    console.log(`Added to cart: Size - ${size}, Crust - ${crust}, Toppings - ${toppings}`);
+    let multiplier = 1;
+    if (size === 'Medium') {
+        multiplier = 1.5;
+    } else if (size === 'Large') {
+        multiplier = 1.8;
+    }
 
+    const basePrice = currentPizzaCost * multiplier;
+
+    let crustMultiplier = 0;
+    if (crust === 'Thick') {
+        crustMultiplier = 0.15;
+    } else if (crust === 'Cheese') {
+        crustMultiplier = 0.30;
+    }
+
+    const crustAdjustedPrice = basePrice * (1 + crustMultiplier);
+
+    // Calculate total topping cost
+    const toppingInputs = document.querySelectorAll('input[name="topping"]:checked');
+    let toppingCost = 0;
+    toppingInputs.forEach(input => {
+        toppingCost += parseFloat(input.getAttribute('data-cost'));
+    });
+
+    const finalPrice = crustAdjustedPrice + toppingCost;
+
+    console.log(`Added to cart: Size - ${size}, Crust - ${crust}, Toppings - ${toppings}, Price - ₹${finalPrice.toFixed(2)}`);
     closeStepper();
 }
-async function fetchPizzas() {
-    try {
-        const response = await fetch('https://localhost:7028/api/Pizza');
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const pizzas = await response.json();
-        displayItems(pizzas, 'pizza');
-    } catch (error) {
-        console.error('There was a problem with the fetch operation:', error);
-    }
-}
+
+
 
 function displayItems(items, type) {
     const container = type === 'pizza' ? document.getElementById('pizzaList') : document.getElementById('beverageContainer');
-    container.innerHTML = ''; // Clear existing content
+    container.innerHTML = ''; 
 
     const currentDate = new Date();
 
@@ -94,9 +221,16 @@ function displayItems(items, type) {
             badgeContainer.appendChild(newBadge);
         }
 
+        // Adding veg/non-veg badge
+        const vegBadge = document.createElement('span');
+        vegBadge.textContent = item.isVeg ? 'Veg' : 'Non-Veg';
+        vegBadge.classList.add(item.isVeg ? 'veg' : 'non-veg');
+        badgeContainer.appendChild(vegBadge);
+
         const button = document.createElement('button');
         button.textContent = 'Add';
         button.classList.add('button');
+        button.onclick = () => addToCart(item); 
 
         const name = document.createElement('h2');
         name.classList.add('title');
@@ -108,7 +242,7 @@ function displayItems(items, type) {
 
         const volume = document.createElement('p');
         volume.classList.add('volume');
-        volume.textContent = `Price: ${cost}`;
+        volume.textContent = `₹${cost}`;
 
         content.appendChild(name);
         content.appendChild(description);
@@ -125,4 +259,4 @@ function displayItems(items, type) {
     }
 }
 
-fetchPizzas();
+fetchAllPizzas();

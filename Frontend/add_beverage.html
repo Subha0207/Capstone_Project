@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Beverage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .form-container h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .form-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #1a73e8;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #1669c1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container">
+        <h1>Add Beverage</h1>
+        <form id="beverageForm">
+            <div class="form-group">
+                <label for="name">Beverage Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="cost">Cost:</label>
+                <input type="number" id="cost" name="cost" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="volume">Volume:</label>
+                <input type="text" id="volume" name="volume" required>
+            </div>
+            <div class="form-group">
+                <label for="image">Upload Image:</label>
+                <input type="file" id="image" name="image" accept="image/jpeg, image/jpg" required>
+            </div>
+            <div class="form-group">
+                <label for="isBestSeller">Best Seller:</label>
+                <input type="checkbox" id="isBestSeller" name="isBestSeller">
+            </div>
+           
+            <button type="submit">Add Beverage</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('beverageForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const file = formData.get('image');
+            const reader = new FileReader();
+
+            reader.onloadend = function () {
+                formData.delete('image'); // Remove file from formData
+                const imageBase64 = reader.result.split(',')[1]; // Extract base64 string
+                formData.append('image', imageBase64); // Add base64 string to formData
+
+                const itemData = Object.fromEntries(formData.entries());
+                itemData.isBestSeller = formData.get('isBestSeller') === 'on';
+                itemData.isVeg = formData.get('isVeg') === 'true';
+
+                fetch('https://localhost:7028/api/Beverage', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(itemData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    alert('Beverage added successfully!');
+                    event.target.reset(); // Clear the form after successful submission
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error adding beverage. Please try again.');
+                });
+            }
+
+            reader.readAsDataURL(file); // Convert image to base64 string
+        });
+    </script>
+</body>
+
+</html>

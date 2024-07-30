@@ -11,8 +11,15 @@ namespace PizzaApp.Models
         [Required]
         public int UserId { get; set; }
 
-        public int? PizzaDetailsId { get; set; }
-        public PizzaDetails PizzaDetails { get; set; }
+
+        public int? PizzaId { get; set; }
+        public Pizza Pizza { get; set; }
+        public int CrustId { get; set; }
+        public Crust Crust { get; set; }
+        public int ToppingId { get; set; }
+        public Topping Topping { get; set; }
+
+        public decimal? PizzaCost { get; set; }
         public int? BeverageId { get; set; }
 
         [Required]
@@ -24,7 +31,8 @@ namespace PizzaApp.Models
 
         [Range(0, int.MaxValue, ErrorMessage = "BeverageQuantity must be a positive value.")]
         public int? BeverageQuantity { get; set; }
-  
+        public decimal? BeverageCost { get; set; }
+
         public int CartId { get; set; }
         [ForeignKey("CartId")]
         public Cart Cart { get; set; }

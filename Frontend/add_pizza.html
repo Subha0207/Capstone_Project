@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Pizza</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .form-container h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .form-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #1a73e8;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #1669c1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container">
+        <h1>Upload Pizza</h1>
+        <form id="uploadForm">
+            <div class="form-group">
+                <label for="name">Pizza Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="cost">Cost:</label>
+                <input type="number" id="cost" name="cost" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="image">Upload Image:</label>
+                <input type="file" id="image" name="image" accept="image/jpeg, image/jpg" required>
+            </div>
+            <div class="form-group">
+                <label for="uploadDate">Upload Date:</label>
+                <input type="date" id="uploadDate" name="uploadDate" required readonly>
+            </div>
+            <div class="form-group">
+                <label for="isBestSeller">Best Seller:</label>
+                <input type="checkbox" id="isBestSeller" name="isBestSeller">
+            </div>
+            <div class="form-group">
+                <label for="isVeg">Vegetarian:</label>
+                <select id="isVeg" name="isVeg" required>
+                    <option value="true">Veg</option>
+                    <option value="false">Non-Veg</option>
+                </select>
+            </div>
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+
+    <script>
+        // Set the upload date to today's date and make it read-only
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const uploadDateInput = document.getElementById('uploadDate');
+            const today = new Date().toISOString().split('T')[0];
+            uploadDateInput.value = today;
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const file = formData.get('image');
+            const reader = new FileReader();
+
+            reader.onloadend = function () {
+                formData.delete('image'); // Remove file from formData
+                const imageBase64 = reader.result;
+                formData.append('image', imageBase64); // Add base64 string to formData
+
+                const itemData = Object.fromEntries(formData.entries());
+                itemData.isBestSeller = formData.get('isBestSeller') === 'on';
+                itemData.isVeg = formData.get('isVeg') === 'true';
+
+                console.log(itemData); // Log the item data to console
+
+               
+            }
+
+            reader.readAsDataURL(file); // Convert image to base64 string
+        });
+    </script>
+</body>
+
+</html>

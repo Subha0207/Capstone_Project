@@ -31,5 +31,15 @@ namespace PizzaApp.Services
             return user;
          
         }
+
+        public async Task<int> GetUserRole(string email)
+        {
+            var user = await _userRepository.GetUserByEmail(email);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+            return (int)user.Role;
+        }
     }
 }

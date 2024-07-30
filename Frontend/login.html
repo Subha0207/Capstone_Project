@@ -84,28 +84,59 @@
     </div>
 
     <script>
-        function handleCredentialResponse(response) {
+        async function handleCredentialResponse(response) {
             const token = response.credential;
             console.log('Token:', token);
 
-            fetch('https://localhost:7028/api/v1/auth/google', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    token: token
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Success:', data);
-                    window.location.href = 'index.html';
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
+            try {
+                let authResponse = await fetch('https://localhost:7028/api/v1/auth/google', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ token: token })
                 });
+
+                if (!authResponse.ok) {
+                    let errorText = await authResponse.text();
+                    throw new Error(`Failed to authenticate with Google: ${errorText}`);
+                }
+
+                // Manually decode the JWT token
+                const decodeJwtPayload = (token) => {
+                    const base64Url = token.split('.')[1];
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+
+                    return JSON.parse(jsonPayload);
+                };
+
+                const decodedToken = decodeJwtPayload(token);
+                const userEmail = decodedToken.email; // Adjust this to match the actual claim for the email in your token
+
+                // Fetch user role using the email
+                let roleResponse = await fetch(`https://localhost:7028/api/User/GetUserRole?email=${encodeURIComponent(userEmail)}`);
+                if (!roleResponse.ok) {
+                    let errorText = await roleResponse.text();
+                    throw new Error(`Failed to get user role: ${errorText}`);
+                }
+
+                let userRole = await roleResponse.json();
+                console.log('User Role:', userRole);
+
+                if (userRole === 0) {
+                    window.location.href = 'admin.html';  
+                } else {
+                    window.location.href = 'index.html';  
+                }
+
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
     </script>
 </body>

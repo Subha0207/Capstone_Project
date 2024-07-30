@@ -35,6 +35,11 @@
 }
 
 .beverage-volume {
+    font-size: 1em;
+
+    margin: 0.5em 0;
+}
+.beverage-cost {
     font-size: 1.25em;
     font-weight: bold;
     margin: 0.5em 0;

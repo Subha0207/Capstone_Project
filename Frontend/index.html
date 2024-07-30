@@ -24,10 +24,11 @@
             <div id="suggestions" class="suggestions"></div>
         </div>
         
-        <input type="text" id="content-search" placeholder="Search content">
+      
         <div class="icons">
             <div id="cart-icon" class="icon"><i class="fas fa-shopping-cart"></i></div>
             <div id="profile-icon" class="icon"><i class="fas fa-user"></i></div>
+
         </div>
     </div>
     
@@ -41,6 +42,13 @@
     <iframe id="content-frame" src="" frameborder="0" class="content"></iframe>
     
     <script>
+        document.getElementById('cart-icon').addEventListener('click', function () {
+            window.location.href = 'cart.html';
+        });
+
+        document.getElementById('profile-icon').addEventListener('click', function () {
+            window.location.href = 'profile.html';
+        });
         document.addEventListener('DOMContentLoaded', () => {
             const tabs = document.querySelectorAll('.tab');
             const iframe = document.getElementById('content-frame');

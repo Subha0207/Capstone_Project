@@ -72,11 +72,11 @@
 
                         const beverageVolume = document.createElement('p');
                         beverageVolume.classList.add('beverage-volume');
-                        beverageVolume.textContent = `${beverage.cost}`;
+                        beverageVolume.textContent = `${beverage.volume}`;
 
                         const beverageCost = document.createElement('p');
-                        beverageVolume.classList.add('beverage-cost');
-                        beverageVolume.textContent = `Rs.${beverage.cost}`;
+                        beverageCost.classList.add('beverage-cost');
+                        beverageCost.textContent = `₹${beverage.cost}`;
 
                         beverageContent.appendChild(beverageName);
                         beverageContent.appendChild(beverageDescription);

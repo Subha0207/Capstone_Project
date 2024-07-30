@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,12 +11,17 @@
         h1 {
             text-align: center;
         }
-
         .container {
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 20px;
+        }
+
+        .filter-container {
+            display: flex;
+            justify-content: center;
+ 
         }
 
         .card {
@@ -79,22 +85,42 @@
             top: 10px;
         }
 
-        .bestseller{
-            font-weight: 600;
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 0.75em;
-            color: black;
-            background-color: #69e2ff;
-
-        }
         .new {
             font-weight: 600;
             padding: 5px 10px;
             border-radius: 12px;
             font-size: 0.75em;
             color: black;
+            background-color: #69e2ff;
+        }
+
+        .bestseller {
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            color: black;
             background-color: #FFD700;
+        }
+
+        .veg {
+            background-color: green;
+            color: white;
+            margin-left: 0.5em;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+        }
+
+        .non-veg {
+            background-color: red;
+            color: white;
+            margin-left: 0.5em;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
         }
 
         .button {
@@ -111,32 +137,67 @@
         .button:hover {
             background-color: #218838;
         }
+        .header{
+            text-align: center;
+        }
     </style>
 </head>
+
 <body>
+    <div class="header">
+        <h2>PIZZAS</h2>
+    </div>
+    <div class="filter-container">Filter:
+        <label>
+            <input type="checkbox" id="vegCheckbox" onchange="filterItems()">
+            Veg
+        </label>
+        <label>
+            <input type="checkbox" id="nonVegCheckbox" onchange="filterItems()">
+            Non-Veg
+        </label>
+    </div>
 
     <div class="container" id="pizzaList">
         <!-- Pizza items will be inserted here -->
     </div>
+    <div class="header">
+        <h2>BEVERAGES</h2>
+    </div>
     <div class="container" id="beverageContainer"></div>
 
     <script>
+        let allPizzas = [];
+
         async function fetchBestSellerPizzas() {
             try {
                 const response = await fetch('https://localhost:7028/api/Pizza/bestsellers');
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-                const pizzas = await response.json();
-                displayItems(pizzas, 'pizza');
+                allPizzas = await response.json();
+                filterItems(); // Display filtered items initially
             } catch (error) {
                 console.error('There was a problem with the fetch operation:', error);
             }
         }
 
+        function filterItems() {
+            const showVeg = document.getElementById('vegCheckbox').checked;
+            const showNonVeg = document.getElementById('nonVegCheckbox').checked;
+
+            const filteredPizzas = allPizzas.filter(pizza => 
+                (showVeg && pizza.isVeg) || 
+                (showNonVeg && !pizza.isVeg) || 
+                (!showVeg && !showNonVeg)
+            );
+
+            displayItems(filteredPizzas, 'pizza');
+        }
+
         function displayItems(items, type) {
             const container = type === 'pizza' ? document.getElementById('pizzaList') : document.getElementById('beverageContainer');
-            container.innerHTML = ''; // Clear existing content
+            container.innerHTML = ''; 
 
             const currentDate = new Date();
 
@@ -179,6 +240,13 @@
                     badgeContainer.appendChild(newBadge);
                 }
 
+                if (type === 'pizza') {
+                    const vegBadge = document.createElement('span');
+                    vegBadge.textContent = item.isVeg ? 'Veg' : 'Non-Veg';
+                    vegBadge.classList.add(item.isVeg ? 'veg' : 'non-veg');
+                    badgeContainer.appendChild(vegBadge);
+                }
+
                 const button = document.createElement('button');
                 button.textContent = 'Add';
                 button.classList.add('button');
@@ -193,7 +261,7 @@
 
                 const volume = document.createElement('p');
                 volume.classList.add('volume');
-                volume.textContent = `Price: ${cost}`;
+                volume.textContent = `₹${cost}`;
 
                 content.appendChild(name);
                 content.appendChild(description);
@@ -220,4 +288,5 @@
         });
     </script>
 </body>
+
 </html>

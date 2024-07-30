@@ -12,7 +12,6 @@ namespace PizzaApp.Models.DTOs
         [StringLength(100, ErrorMessage = "Email can't be longer than 100 characters.")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Role is required.")]
-        public UserRole Role { get; set; }
+  
     }
 }
