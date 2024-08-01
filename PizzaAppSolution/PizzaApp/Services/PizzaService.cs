@@ -40,5 +40,14 @@ namespace PizzaApp.Services
             return await _pizzaRepository.Get();
         }
 
+        public async Task<Pizza> GetPizzaById(int PizzaId)
+        {
+            var pizza = await _pizzaRepository.GetPizzaByPizzaId(PizzaId);
+            if (pizza == null)
+            {
+                throw new Exception("Pizza not found");
+            }
+            return pizza;
+        }
     }
 }

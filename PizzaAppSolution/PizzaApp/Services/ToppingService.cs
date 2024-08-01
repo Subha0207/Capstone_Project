@@ -18,6 +18,14 @@ namespace PizzaApp.Services
             return await _toppingRepository.Get();
         }
 
-
+        public async Task<Topping> GetToppingById(int ToppingId)
+        {
+            var topping = await _toppingRepository.GetToppingByToppingId(ToppingId);
+            if (topping == null)
+            {
+                throw new Exception("Topping not found");
+            }
+            return topping;
+        }
     }
 }

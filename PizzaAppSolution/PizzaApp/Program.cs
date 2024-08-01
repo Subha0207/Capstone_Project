@@ -110,6 +110,8 @@ namespace PizzaApp
             builder.Services.AddScoped<CrustRepository>();
             builder.Services.AddScoped<SizeRepository>();
             builder.Services.AddScoped<ToppingRepository>();
+            builder.Services.AddScoped<CartRepository>();
+            builder.Services.AddScoped<CartItemRepository>();
             #endregion
             #region Services
 
@@ -121,7 +123,8 @@ namespace PizzaApp
             builder.Services.AddScoped<ICrustService, CrustService>();
             builder.Services.AddScoped<ISizeService, SizeService>();
             builder.Services.AddScoped<IToppingService, ToppingService>();
-
+            builder.Services.AddScoped<ICartService, CartService>();
+            builder.Services.AddScoped<ICartItemService, CartItemService>();
             #endregion
 
 

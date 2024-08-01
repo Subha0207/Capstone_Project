@@ -3,17 +3,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PizzaApp.Models
 {
-    public class Size
+    public class SizeDTO
     {
-        [Key]
-        public int SizeId { get; set; }
-
         [Required]
         [EnumDataType(typeof(SizeName))]
         public SizeName Name { get; set; }
-        public decimal SizeMultiplier { get; set; }
-        [Required]
 
-        public decimal Cost { get; set; } = 1;
+        [Required]
+        public decimal Cost { get; set; }
     }
 }

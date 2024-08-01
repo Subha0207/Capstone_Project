@@ -10,5 +10,7 @@ namespace PizzaApp.Interfaces
         Task<IEnumerable<Pizza>> GetAllVegPizzas();
         Task<IEnumerable<Pizza>> GetAllNonVegPizzas();
 
+        public Task<Pizza> GetPizzaById(int PizzaId);
+
     }
 }

@@ -21,7 +21,7 @@ namespace PizzaApp.Contexts
         public DbSet<Cart> Carts { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Topping> Toppings { get; set; }
-        public DbSet<PizzaDetails> PizzaDetails { get; set; }
+        public DbSet<CartItem> CartItem { get; set; }
         public DbSet<Crust> Crusts { get; set; }
         public DbSet<Size> Sizes { get; set; } // Add DbSet for Size
 
@@ -35,10 +35,11 @@ namespace PizzaApp.Contexts
             modelBuilder.Entity<Beverage>().HasKey(bv => bv.BeverageId);
             modelBuilder.Entity<Order>().HasKey(o => o.OrderId);
             modelBuilder.Entity<Cart>().HasKey(c => c.CartId);
+            modelBuilder.Entity<CartItem>().HasKey(ci => ci.CartItemId);
             modelBuilder.Entity<Crust>().HasKey(cr => cr.CrustId);
             modelBuilder.Entity<Size>().HasKey(s => s.SizeId);
             modelBuilder.Entity<Topping>().HasKey(t => t.ToppingId);
-            modelBuilder.Entity<PizzaDetails>().HasKey(pd => pd.PizzaDetailsId);
+         
 
             var currentDate = DateTime.Now;
             var oneWeekAgo = currentDate.AddDays(-7);
@@ -169,19 +170,19 @@ namespace PizzaApp.Contexts
                 {
                     CrustId = 1,
                     Name = CrustName.Thin,
-                    Cost = 1.00m
+                  CrustMultiplier=1
                 },
                 new Crust
                 {
                     CrustId = 2,
                     Name = CrustName.Thick,
-                    Cost = 1.50m
+                    CrustMultiplier = 1.2m
                 },
                 new Crust
                 {
                     CrustId = 3,
                     Name = CrustName.Stuffed,
-                    Cost = 2.00m
+                    CrustMultiplier = 1.4m
                 }
             );
 
@@ -212,19 +213,19 @@ namespace PizzaApp.Contexts
                 {
                     SizeId = 1,
                     Name = SizeName.Small,
-                    Cost = 1m
+                   SizeMultiplier=1
                 },
                 new Size
                 {
                     SizeId = 2,
                     Name = SizeName.Medium,
-                    Cost = 1.5m
+                   SizeMultiplier=1.2m
                 },
                 new Size
                 {
                     SizeId = 3,
                     Name = SizeName.Large,
-                    Cost = 2m
+                   SizeMultiplier=1.4m
                 }
             );
         }

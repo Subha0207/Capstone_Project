@@ -12,7 +12,7 @@ using PizzaApp.Contexts;
 namespace PizzaApp.Migrations
 {
     [DbContext(typeof(PizzaAppContext))]
-    [Migration("20240728151413_init")]
+    [Migration("20240801153115_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -138,8 +138,14 @@ namespace PizzaApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartId"), 1L, 1);
 
-                    b.Property<decimal>("TotalCost")
+                    b.Property<bool>("IsCheckedOut")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("CartId");
 
@@ -154,23 +160,54 @@ namespace PizzaApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartItemId"), 1L, 1);
 
+                    b.Property<decimal?>("BeverageCost")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("BeverageDiscount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("BeverageFinalPrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int?>("BeverageId")
                         .HasColumnType("int");
 
                     b.Property<int?>("BeverageQuantity")
                         .HasColumnType("int");
 
+                    b.Property<decimal?>("BeverageTotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("CartId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("PizzaDetailsId")
+                    b.Property<int>("CrustId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("PizzaCost")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("PizzaDiscount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("PizzaFinalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("PizzaId")
                         .HasColumnType("int");
 
                     b.Property<int?>("PizzaQuantity")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("TotalPrice")
+                    b.Property<decimal?>("PizzaTotalPrice")
+                        .IsRequired()
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("SizeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ToppingId")
+                        .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -179,7 +216,13 @@ namespace PizzaApp.Migrations
 
                     b.HasIndex("CartId");
 
-                    b.HasIndex("PizzaDetailsId");
+                    b.HasIndex("CrustId");
+
+                    b.HasIndex("PizzaId");
+
+                    b.HasIndex("SizeId");
+
+                    b.HasIndex("ToppingId");
 
                     b.ToTable("CartItem");
                 });
@@ -195,6 +238,9 @@ namespace PizzaApp.Migrations
                     b.Property<decimal>("Cost")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal>("CrustMultiplier")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("Name")
                         .HasColumnType("int");
 
@@ -206,21 +252,50 @@ namespace PizzaApp.Migrations
                         new
                         {
                             CrustId = 1,
-                            Cost = 1.00m,
+                            Cost = 1m,
+                            CrustMultiplier = 1m,
                             Name = 0
                         },
                         new
                         {
                             CrustId = 2,
-                            Cost = 1.50m,
+                            Cost = 1m,
+                            CrustMultiplier = 1.2m,
                             Name = 1
                         },
                         new
                         {
                             CrustId = 3,
-                            Cost = 2.00m,
+                            Cost = 1m,
+                            CrustMultiplier = 1.4m,
                             Name = 2
                         });
+                });
+
+            modelBuilder.Entity("PizzaApp.Models.DTOs.UserDTO", b =>
+                {
+                    b.Property<int>("UserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"), 1L, 1);
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("UserDTO");
                 });
 
             modelBuilder.Entity("PizzaApp.Models.Order", b =>
@@ -231,12 +306,18 @@ namespace PizzaApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"), 1L, 1);
 
+                    b.Property<int>("CartId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PaymentId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PaymentId1")
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -245,6 +326,12 @@ namespace PizzaApp.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("OrderId");
+
+                    b.HasIndex("CartId");
+
+                    b.HasIndex("PaymentId1");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Orders");
                 });
@@ -326,7 +413,7 @@ namespace PizzaApp.Migrations
                             IsBestSeller = true,
                             IsVeg = true,
                             Name = "Margherita",
-                            UploadDate = new DateTime(2024, 7, 28, 20, 44, 12, 933, DateTimeKind.Local).AddTicks(6695)
+                            UploadDate = new DateTime(2024, 8, 1, 21, 1, 13, 116, DateTimeKind.Local).AddTicks(200)
                         },
                         new
                         {
@@ -338,7 +425,7 @@ namespace PizzaApp.Migrations
                             IsBestSeller = true,
                             IsVeg = false,
                             Name = "Pepperoni",
-                            UploadDate = new DateTime(2024, 7, 15, 20, 44, 12, 933, DateTimeKind.Local).AddTicks(6695)
+                            UploadDate = new DateTime(2024, 7, 19, 21, 1, 13, 116, DateTimeKind.Local).AddTicks(200)
                         },
                         new
                         {
@@ -350,60 +437,32 @@ namespace PizzaApp.Migrations
                             IsBestSeller = false,
                             IsVeg = true,
                             Name = "Vegetarian Supreme",
-                            UploadDate = new DateTime(2024, 7, 11, 20, 44, 12, 933, DateTimeKind.Local).AddTicks(6695)
+                            UploadDate = new DateTime(2024, 7, 15, 21, 1, 13, 116, DateTimeKind.Local).AddTicks(200)
                         },
                         new
                         {
                             PizzaId = 4,
                             Cost = 299m,
                             Description = "Grilled chicken with BBQ sauce and red onions.",
-                            Image = "https://www.vecteezy.com/png/44771686-a-tasty-pepperoni-pizza",
+                            Image = "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?q=80&w=1776&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
                             IsAvailable = true,
                             IsBestSeller = false,
                             IsVeg = false,
                             Name = "BBQ Chicken",
-                            UploadDate = new DateTime(2024, 7, 6, 20, 44, 12, 933, DateTimeKind.Local).AddTicks(6695)
+                            UploadDate = new DateTime(2024, 7, 10, 21, 1, 13, 116, DateTimeKind.Local).AddTicks(200)
                         },
                         new
                         {
                             PizzaId = 5,
                             Cost = 279m,
                             Description = "Sweet pineapple and ham with a cheesy base.",
-                            Image = "https://www.vecteezy.com/png/24589246-top-view-pizza-with-ai-generated",
+                            Image = "https://media.istockphoto.com/id/1442417585/photo/person-getting-a-piece-of-cheesy-pepperoni-pizza.jpg?s=1024x1024&w=is&k=20&c=faq73viCFGvfpKxcBuHcOI8kyT99B-p-jScipke-VuQ=",
                             IsAvailable = true,
                             IsBestSeller = false,
                             IsVeg = false,
                             Name = "Hawaiian",
-                            UploadDate = new DateTime(2024, 7, 11, 20, 44, 12, 933, DateTimeKind.Local).AddTicks(6695)
+                            UploadDate = new DateTime(2024, 7, 15, 21, 1, 13, 116, DateTimeKind.Local).AddTicks(200)
                         });
-                });
-
-            modelBuilder.Entity("PizzaApp.Models.PizzaDetails", b =>
-                {
-                    b.Property<int>("PizzaDetailsId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PizzaDetailsId"), 1L, 1);
-
-                    b.Property<int>("CrustId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PizzaId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ToppingId")
-                        .HasColumnType("int");
-
-                    b.HasKey("PizzaDetailsId");
-
-                    b.HasIndex("CrustId");
-
-                    b.HasIndex("PizzaId");
-
-                    b.HasIndex("ToppingId");
-
-                    b.ToTable("PizzaDetails");
                 });
 
             modelBuilder.Entity("PizzaApp.Models.Size", b =>
@@ -420,6 +479,9 @@ namespace PizzaApp.Migrations
                     b.Property<int>("Name")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("SizeMultiplier")
+                        .HasColumnType("decimal(18,2)");
+
                     b.HasKey("SizeId");
 
                     b.ToTable("Sizes");
@@ -429,19 +491,22 @@ namespace PizzaApp.Migrations
                         {
                             SizeId = 1,
                             Cost = 1m,
-                            Name = 0
+                            Name = 0,
+                            SizeMultiplier = 1m
                         },
                         new
                         {
                             SizeId = 2,
-                            Cost = 1.5m,
-                            Name = 1
+                            Cost = 1m,
+                            Name = 1,
+                            SizeMultiplier = 1.2m
                         },
                         new
                         {
                             SizeId = 3,
-                            Cost = 2m,
-                            Name = 2
+                            Cost = 1m,
+                            Name = 2,
+                            SizeMultiplier = 1.4m
                         });
                 });
 
@@ -518,17 +583,6 @@ namespace PizzaApp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PizzaApp.Models.PizzaDetails", "PizzaDetails")
-                        .WithMany()
-                        .HasForeignKey("PizzaDetailsId");
-
-                    b.Navigation("Cart");
-
-                    b.Navigation("PizzaDetails");
-                });
-
-            modelBuilder.Entity("PizzaApp.Models.PizzaDetails", b =>
-                {
                     b.HasOne("PizzaApp.Models.Crust", "Crust")
                         .WithMany()
                         .HasForeignKey("CrustId")
@@ -537,7 +591,11 @@ namespace PizzaApp.Migrations
 
                     b.HasOne("PizzaApp.Models.Pizza", "Pizza")
                         .WithMany()
-                        .HasForeignKey("PizzaId")
+                        .HasForeignKey("PizzaId");
+
+                    b.HasOne("PizzaApp.Models.Size", "Size")
+                        .WithMany()
+                        .HasForeignKey("SizeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -547,11 +605,42 @@ namespace PizzaApp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Cart");
+
                     b.Navigation("Crust");
 
                     b.Navigation("Pizza");
 
+                    b.Navigation("Size");
+
                     b.Navigation("Topping");
+                });
+
+            modelBuilder.Entity("PizzaApp.Models.Order", b =>
+                {
+                    b.HasOne("PizzaApp.Models.Cart", "Cart")
+                        .WithMany()
+                        .HasForeignKey("CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PizzaApp.Models.Payment", "Payment")
+                        .WithMany()
+                        .HasForeignKey("PaymentId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PizzaApp.Models.DTOs.UserDTO", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cart");
+
+                    b.Navigation("Payment");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("PizzaApp.Models.Cart", b =>

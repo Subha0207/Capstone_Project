@@ -1,18 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-namespace PizzaApp.Models
+namespace PizzaApp.Models.DTOs
 {
-    public class Cart
+    public class CartUpdateDTO
     {
-        [Key]
         public int CartId { get; set; }
         [Required]
         public int UserId { get; set; }
         [ForeignKey("UserId")]
 
-       public bool IsCheckedOut { get; set; }
+        public bool IsCheckedOut { get; set; }
         public decimal? TotalPrice { get; set; }
-        public ICollection<CartItem> CartItems { get; set; }
     }
 }

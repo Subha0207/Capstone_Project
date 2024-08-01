@@ -127,12 +127,30 @@
                 let userRole = await roleResponse.json();
                 console.log('User Role:', userRole);
 
-                if (userRole === 0) {
-                    window.location.href = 'admin.html';  
-                } else {
-                    window.location.href = 'index.html';  
+                // Fetch user ID and store in local storage
+                const apiUrl = `https://localhost:7028/api/User/GetUserId?email=${encodeURIComponent(userEmail)}`;
+                const userIdResponse = await fetch(apiUrl);
+
+                if (!userIdResponse.ok) {
+                    let errorText = await userIdResponse.text();
+                    throw new Error(`Failed to get user ID: ${errorText}`);
                 }
 
+                const userIdData = await userIdResponse.json();
+                console.log('User ID Data:', userIdData);
+
+                if (userIdData && userIdData.userId) {
+                    localStorage.setItem('userId', userIdData.userId);
+                    console.log('User ID stored in local storage:', userIdData.userId);
+                } else {
+                    console.error('User ID not found in response.');
+                }
+
+                if (userRole === 0) {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'index.html';
+                }
 
             } catch (error) {
                 console.error('Error:', error);

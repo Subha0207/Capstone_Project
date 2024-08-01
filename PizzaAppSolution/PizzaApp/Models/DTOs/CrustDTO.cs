@@ -1,21 +1,16 @@
 ﻿using PizzaApp.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace PizzaApp.Models
+namespace PizzaApp.Models.DTOs
 {
-    public class Crust
+    public class CrustDTO
     {
-        [Key]
-        public int CrustId { get; set; }
 
         [Required]
         [EnumDataType(typeof(CrustName))]
         public CrustName Name { get; set; }
 
-        public decimal CrustMultiplier { get; set; }
-
         [Required]
-
-        public decimal Cost { get; set; } = 1;
+        public decimal Cost { get; set; }
     }
 }

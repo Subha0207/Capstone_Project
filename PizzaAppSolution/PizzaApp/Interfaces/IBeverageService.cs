@@ -9,5 +9,7 @@ namespace PizzaApp.Interfaces
 
         Task<IEnumerable<Beverage>> GetAllNewBeverages();
         Task<IEnumerable<Beverage>> GetAllBestSellingBeverages();
+        public Task<Beverage> GetBeverageByBeverageId(int BeverageId);
+
     }
 }

@@ -1,11 +1,327 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Cart Items List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .cart-container {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+            position: relative;
+        }
+
+        #cart-items-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .cart-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .cart-item h2 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+
+        .cart-item p {
+            margin: 5px 0;
+        }
+
+        .cart-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-item-block {
+            flex: 1;
+            margin: 0 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .cart-item-block p {
+            margin: 0 10px;
+        }
+
+        .cart-item-quantity {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .cart-item-quantity button {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+
+        .cart-item-quantity button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .pizza-quantity {
+            margin: 0 10px;
+        }
+
+        .column-block {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .remove-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: transparent;
+            color: red;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .remove-icon:hover {
+            color: darkred;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .cart-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .cart-footer button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .cart-footer button:hover {
+            background-color: #45a049;
+        }
+
+        .final-total-cost {
+            font-size: 1.2em;
+            margin-right: 20px;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>cart</h1>
+    <h1>Cart Items</h1>
+    <div class="cart-container">
+        <ul id="cart-items-list"></ul>
+        <div class="cart-footer">
+
+            <p class="final-total-cost">Final Total Cost: $<span id="final-total-cost">0.00</span></p>
+            <button id="checkout-btn">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userId = 1; // Replace with the desired user ID
+            localStorage.setItem('userId', userId);
+            const apiUrl = `https://localhost:7028/api/CartItem/allPizzas${userId}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const cartItems = await response.json();
+
+                const listContainer = document.getElementById('cart-items-list');
+                listContainer.innerHTML = ''; // Clear any existing items
+
+                // Create a list item for each cart item
+                cartItems.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('cart-item');
+
+                    listItem.innerHTML = `
+                <button class="remove-icon" data-cart-item-id="${item.cartItemId}"><i class="fas fa-trash"></i></button>
+                <h2>Cart Item ID: ${item.cartItemId}</h2>
+                <div class="cart-item-row">
+                    <div class="cart-item-block column-block ${!item.pizzaId ? 'hidden' : ''}">
+                        <p>Pizza Details:</p>
+                        <p><strong>Pizza ID:</strong> ${item.pizzaId || 'None'}</p>
+                        <p><strong>Crust ID:</strong> ${item.crustId || 'None'}</p>
+                        <p><strong>Size ID:</strong> ${item.sizeId || 'None'}</p>
+                        <p><strong>Topping ID:</strong> ${item.toppingId || 'None'}</p>
+                    </div>
+                    <div class="cart-item-block ${!item.pizzaId ? 'hidden' : ''}">
+                         <p><strong>Pizza Cost:</strong> <span class="pizza-cost">${item.pizzaCost || 'None'}</span></p>
+                          <p><strong>Pizza Discount:</strong> <span class="pizza-cost">${item.pizzaDiscount || 'None'}</span></p>
+                        <p><strong>Pizza FinalPrice:</strong> <span class="pizza-cost">${item.pizzaFinalPrice || 'None'}</span></p>
+                    </div>
+                    <div class="cart-item-block ${!item.pizzaId ? 'hidden' : ''}">
+                        <div class="cart-item-quantity">
+                            <button class="decrement-btn" data-cart-item-id="${item.cartItemId}">-</button>
+                            <p><span class="pizza-quantity" data-cart-item-id="${item.cartItemId}">${item.pizzaQuantity || 'N/A'}</span></p>
+                            <button class="increment-btn" data-cart-item-id="${item.cartItemId}">+</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <p><strong>Total Price:</strong> <span class="total-price" data-cart-item-id="${item.cartItemId}">${item.pizzaTotalPrice}</span></p>
+            `;
+
+                    listContainer.appendChild(listItem);
+                });
+
+                const updateQuantity = async (cartItemId, newQuantity, pizzaFinalPrice) => {
+                    try {
+                        const patchUrl = 'https://localhost:7028/api/CartItem/PizzaCartItem/Quantity';
+                        const response = await fetch(patchUrl, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                cartItemId: cartItemId,
+                                newQuantity: newQuantity
+                            })
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+
+                        console.log('Quantity updated successfully');
+
+                        // Update the total price displayed on the page
+                        const totalPriceElement = document.querySelector(`.total-price[data-cart-item-id="${cartItemId}"]`);
+                        const newTotalPrice = (newQuantity * pizzaFinalPrice).toFixed(2); // Calculate new total price
+                        totalPriceElement.innerText = newTotalPrice;
+                        calculateFinalTotalCost(); // Recalculate final total cost
+                    } catch (error) {
+                        console.error('Error updating quantity:', error);
+                    }
+                };
+
+                const calculateFinalTotalCost = () => {
+                    let finalTotal = 0;
+                    document.querySelectorAll('.total-price').forEach(priceElement => {
+                        finalTotal += parseFloat(priceElement.innerText);
+                    });
+                    document.getElementById('final-total-cost').innerText = finalTotal.toFixed(2);
+                };
+
+                // Calculate final total cost after rendering items
+                calculateFinalTotalCost();
+
+                // Add event listener to remove icon buttons
+                document.querySelectorAll('.remove-icon').forEach(button => {
+                    button.addEventListener('click', async event => {
+                        const cartItemId = event.target.closest('.remove-icon').getAttribute('data-cart-item-id');
+                        const confirmDelete = confirm('Are you sure you want to delete this item?');
+
+                        if (confirmDelete) {
+                            try {
+                                const deleteUrl = `https://localhost:7028/api/CartItem/pizza${cartItemId}`;
+                                const response = await fetch(deleteUrl, {
+                                    method: 'DELETE',
+                                });
+
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+
+                                // Remove the item from the DOM
+                                event.target.closest('.cart-item').remove();
+                                console.log('Item deleted successfully');
+                                calculateFinalTotalCost(); // Recalculate final total cost
+                            } catch (error) {
+                                console.error('Error deleting item:', error);
+                            }
+                        }
+                    });
+                });
+
+                // Add event listeners to increment and decrement buttons
+                document.querySelectorAll('.increment-btn').forEach(button => {
+                    button.addEventListener('click', async event => {
+                        const cartItemId = event.target.getAttribute('data-cart-item-id');
+                        const quantityElement = document.querySelector(`.pizza-quantity[data-cart-item-id="${cartItemId}"]`);
+                        let newQuantity = parseInt(quantityElement.innerText) + 1;
+                        const pizzaFinalPrice = parseFloat(document.querySelector(`.total-price[data-cart-item-id="${cartItemId}"]`).innerText) / (newQuantity - 1);
+                        quantityElement.innerText = newQuantity;
+                        await updateQuantity(cartItemId, newQuantity, pizzaFinalPrice);
+                    });
+                });
+
+                document.querySelectorAll('.decrement-btn').forEach(button => {
+                    button.addEventListener('click', async event => {
+                        const cartItemId = event.target.getAttribute('data-cart-item-id');
+                        const quantityElement = document.querySelector(`.pizza-quantity[data-cart-item-id="${cartItemId}"]`);
+                        let newQuantity = parseInt(quantityElement.innerText) - 1;
+                        if (newQuantity < 1) newQuantity = 1; // Ensure quantity does not go below 1
+                        const pizzaFinalPrice = parseFloat(document.querySelector(`.total-price[data-cart-item-id="${cartItemId}"]`).innerText) / (newQuantity + 1);
+                        quantityElement.innerText = newQuantity;
+                        await updateQuantity(cartItemId, newQuantity, pizzaFinalPrice);
+                    });
+                });
+
+                document.getElementById('checkout-btn').addEventListener('click', () => {
+                    alert('Proceeding to checkout');
+
+                    const cartId = 3; // Replace with the actual cart ID
+                    fetch(`https://localhost:7028/api/Cart/${cartId}/checkout`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            localStorage.setItem('orderDetails', JSON.stringify(data));
+                            window.location.href = 'order.html';
+                        })
+                        .catch(error => {
+                            console.error('Error during checkout:', error);
+                        });
+                });
+
+
+            } catch (error) {
+                console.error('Error fetching cart items:', error);
+            }
+        });
+
+    </script>
 </body>
+
 </html>

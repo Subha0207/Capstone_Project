@@ -99,7 +99,7 @@
 //         }
 //     });
 // });
-const apiKey = '560ebb85ebc34726b89ebc6102628531'; // Replace with your OpenCage API key
+const apiKey = '560ebb85ebc34726b89ebc6102628531';
 
 document.getElementById('find-location-btn').addEventListener('click', () => {
     if (navigator.geolocation) {

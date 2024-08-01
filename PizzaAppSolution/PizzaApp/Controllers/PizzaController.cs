@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PizzaApp.Exceptions;
 using PizzaApp.Interfaces;
 using PizzaApp.Models;
 using PizzaApp.Services;
@@ -103,5 +104,32 @@ namespace PizzaApp.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the new pizzas.");
             }
         }
+
+        [HttpGet("{PizzaId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<Pizza>> GetPizzaById(int PizzaId)
+        {
+            try
+            {
+                var pizza = await _pizzaService.GetPizzaById(PizzaId);
+                if (pizza == null)
+                {
+                    return NotFound("Pizza not found");
+                }
+                return Ok(pizza);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the pizza.");
+            }
+        }
+
     }
 }

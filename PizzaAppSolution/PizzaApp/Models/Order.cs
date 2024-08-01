@@ -1,4 +1,5 @@
-﻿using PizzaApp.Models.Enums;
+﻿using PizzaApp.Models.DTOs;
+using PizzaApp.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace PizzaApp.Models
@@ -10,6 +11,10 @@ namespace PizzaApp.Models
 
         [Required]
         public string PaymentId { get; set; }
+        public Payment Payment { get; set; }
+        public int CartId { get; set; }
+        public Cart Cart { get; set; }
+
 
         [Required]
         [EnumDataType(typeof(OrderStatus))]
@@ -17,6 +22,7 @@ namespace PizzaApp.Models
 
         [Required]
         public int UserId { get; set; }
+        public UserDTO User { get; set; }
 
         [Required]
         public DateTime OrderDate { get; set; }

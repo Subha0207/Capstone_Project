@@ -32,6 +32,15 @@ namespace PizzaApp.Services
             var oneWeekAgo = DateTime.UtcNow.AddDays(-7);
             return beverages.Where(p => p.UploadDate >= oneWeekAgo);
         }
+        public async Task<Beverage> GetBeverageByBeverageId(int beverageId)
+        {
+            var beverage = await _beverageRepository.GetBeverageByBeverageId(beverageId);
+            if (beverage == null)
+            {
+                throw new Exception("Beverage not found");
+            }
+            return beverage;
+        }
 
     }
 }

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stepper UI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 30px;
+            background-color: #f4f4f4;
+        }
+
+        .stepper-container {
+            margin: 20px;
+            height: auto;
+            width: 50%;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .stepper {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .step {
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .step-number {
+            background-color: #ddd;
+            color: #fff;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .step-title {
+            font-weight: bold;
+        }
+
+        .step.active .step-number {
+            background-color: #4caf50;
+        }
+
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .location-search-container {
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .suggestions {
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .suggestion-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        #order-details {
+            max-width: 800px;
+            margin: 20px auto;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #order-details p {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        li:last-child {
+            border-bottom: none;
+        }
+
+        .item-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .item-info span {
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .item-info span:last-child {
+            margin-bottom: 0;
+        }
+
+        .item-price {
+            font-size: 16px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .item-discount {
+            font-size: 14px;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .total-price {
+            text-align: right;
+            font-size: 20px;
+            color: #333;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="stepper-container">
+        <div class="stepper">
+            <div class="step" id="step-1" onclick="showStep(1)">
+                <div class="step-number">1</div>
+                <div class="step-title">Order Details</div>
+            </div>
+            <div class="step" id="step-2" onclick="showStep(2)">
+                <div class="step-number">2</div>
+                <div class="step-title">Delivery Address</div>
+            </div>
+            <div class="step" id="step-3" onclick="showStep(3)">
+                <div class="step-number">3</div>
+                <div class="step-title">Payment</div>
+            </div>
+        </div>
+        <div class="step-content" id="content-1">
+       
+            <div id="order-details"></div>
+            <button onclick="nextStep(2)">Next</button>
+        </div>
+        <div class="step-content" id="content-2">
+         
+            <div class="location-search-container">
+                <input type="text" id="location-search" placeholder="Search for a location">
+                <button id="find-location-btn">Find My Location</button>
+                <div id="suggestions" class="suggestions"></div>
+            </div>
+
+            <button onclick="prevStep(1)">Back</button>
+            <button onclick="nextStep(3)">Next</button>
+        </div>
+        <div class="step-content" id="content-3">
+        
+            <p>Payment information goes here.</p>
+            <button onclick="prevStep(2)">Back</button>
+            <button>Submit</button>
+        </div>
+    </div>
+
+    <script>
+
+        const apiKey = '560ebb85ebc34726b89ebc6102628531'; // Replace with your OpenCage API key
+
+        document.getElementById('find-location-btn').addEventListener('click', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, handleGeolocationError);
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        });
+
+        function showPosition(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            // Call the reverse geocoding API to get the place name
+            const apiUrl = `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${apiKey}`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.results && data.results.length > 0) {
+                        const suggestionsContainer = document.getElementById('suggestions');
+                        suggestionsContainer.innerHTML = '';
+
+                        data.results.forEach(result => {
+                            const placeName = result.formatted;
+                            const div = document.createElement('div');
+                            div.classList.add('suggestion-item');
+                            div.textContent = placeName;
+                            div.addEventListener('click', function () {
+                                document.getElementById('location-search').value = placeName;
+                                suggestionsContainer.innerHTML = ''; // Clear suggestions
+                            });
+                            suggestionsContainer.appendChild(div);
+                        });
+                    } else {
+                        alert('Place name not found.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching the place name:', error);
+                    alert('Error fetching the place name.');
+                });
+        }
+
+        function handleGeolocationError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    alert('User denied the request for Geolocation.');
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert('Location information is unavailable.');
+                    break;
+                case error.TIMEOUT:
+                    alert('The request to get user location timed out.');
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert('An unknown error occurred.');
+                    break;
+            }
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const orderDetailsDiv = document.getElementById('order-details');
+
+            const orderDetails = JSON.parse(localStorage.getItem('orderDetails'));
+
+            if (orderDetails) {
+                const { totalPrice, cartItems } = orderDetails;
+
+                let htmlContent = '<ul>';
+                cartItems.forEach(item => {
+                    htmlContent += `
+                        <li>
+                            <div class="item-info">
+                                <span>CartItemId: ${item.cartItemId}</span>
+                                <span>PizzaId: ${item.pizzaId}</span>
+                                <span>CrustId: ${item.crustId}</span>
+                                <span>SizeId: ${item.sizeId}</span>
+                                <span>ToppingId: ${item.toppingId}</span>
+                                <span>PizzaQuantity: ${item.pizzaQuantity}</span>
+                                ${item.pizzaDiscount > 0 ? `<span class="item-discount">Discount: $${item.pizzaDiscount.toFixed(2)}</span>` : ''}
+                            </div>
+                            <div class="item-price">
+                                $${item.pizzaFinalPrice.toFixed(2)}
+                            </div>
+                        </li>`;
+                });
+                htmlContent += '</ul>';
+                htmlContent += `<p class="total-price">Total Price: $${totalPrice.toFixed(2)}</p>`;
+
+                orderDetailsDiv.innerHTML = htmlContent;
+            } else {
+                orderDetailsDiv.innerHTML = '<p>No order details found.</p>';
+            }
+        });
+   
+        document.addEventListener('DOMContentLoaded', function () {
+            const locationInput = document.getElementById('location-search');
+            const suggestionsContainer = document.getElementById('suggestions');
+
+            locationInput.addEventListener('input', function () {
+                const query = locationInput.value.trim();
+
+                // Clear previous suggestions
+                suggestionsContainer.innerHTML = '';
+
+                if (query.length > 0) {
+                    // Fetch suggestions from OpenCage API
+                    const apiUrl = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(query)}&key=${apiKey}`;
+
+                    fetch(apiUrl)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.results && data.results.length > 0) {
+                                data.results.forEach(result => {
+                                    const div = document.createElement('div');
+                                    div.classList.add('suggestion-item');
+                                    div.textContent = result.formatted;
+                                    div.addEventListener('click', function () {
+                                        locationInput.value = result.formatted;
+                                        suggestionsContainer.innerHTML = ''; // Clear suggestions
+                                    });
+                                    suggestionsContainer.appendChild(div);
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching suggestions:', error);
+                        });
+                }
+            });
+
+            // Close suggestions container when clicking outside
+            document.addEventListener('click', function (event) {
+                if (!event.target.closest('.location-search-container')) {
+                    suggestionsContainer.innerHTML = '';
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            showStep(1);
+            fetchCartDetails(1); // Fetch cart details for cart ID 2
+        });
+
+        function showStep(step) {
+            const steps = document.querySelectorAll('.step');
+            const contents = document.querySelectorAll('.step-content');
+
+            steps.forEach((stepElement, index) => {
+                if (index + 1 === step) {
+                    stepElement.classList.add('active');
+                } else {
+                    stepElement.classList.remove('active');
+                }
+            });
+
+            contents.forEach((contentElement, index) => {
+                if (index + 1 === step) {
+                    contentElement.classList.add('active');
+                } else {
+                    contentElement.classList.remove('active');
+                }
+            });
+        }
+
+        function nextStep(step) {
+            showStep(step);
+        }
+
+        function prevStep(step) {
+            showStep(step);
+        }
+
+
+   </script>
+
+</body>
+
+</html>
