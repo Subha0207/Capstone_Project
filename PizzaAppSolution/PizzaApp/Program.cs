@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +24,6 @@ namespace PizzaApp
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "PizzaApp API", Version = "v1" });
@@ -42,19 +40,19 @@ namespace PizzaApp
                 });
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
             });
 
             builder.Services.AddCors(options =>
@@ -118,13 +116,16 @@ namespace PizzaApp
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped(typeof(IPizzaService), typeof(PizzaService));
+            builder.Services.AddScoped<IPizzaService, PizzaService>();
             builder.Services.AddScoped<IBeverageService, BeverageService>();
             builder.Services.AddScoped<ICrustService, CrustService>();
             builder.Services.AddScoped<ISizeService, SizeService>();
             builder.Services.AddScoped<IToppingService, ToppingService>();
             builder.Services.AddScoped<ICartService, CartService>();
             builder.Services.AddScoped<ICartItemService, CartItemService>();
+
+            // Register SizeService as a concrete class
+            builder.Services.AddScoped<SizeService>();
             #endregion
 
 

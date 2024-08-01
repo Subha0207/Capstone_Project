@@ -24,9 +24,7 @@
 <div id="stepper-popup" class="stepper-popup hidden">
     <div class="step step-1 active">
         <h3>Choose Pizza Size</h3>
-        <label class="radio-label"><input type="radio" name="size" value="Small" onchange="updatePrice()"> <span class="size-name">Small</span> <span class="price" id="price-small"></span></label>
-        <label class="radio-label"><input type="radio" name="size" value="Medium" onchange="updatePrice()"> <span class="size-name">Medium</span> <span class="price" id="price-medium"></span></label>
-        <label class="radio-label"><input type="radio" name="size" value="Large" onchange="updatePrice()"> <span class="size-name">Large</span> <span class="price" id="price-large"></span></label>
+        <div id="size-options"></div>
         <div class="stepper-buttons">
             <button onclick="closeStepper()">Cancel</button>
             <button onclick="nextStep(2)">Next</button>
@@ -46,28 +44,8 @@
     
     <div class="step step-3">
         <h3>Choose Toppings</h3>
-        <div class="topping-options">
-            <label class="topping-item">
-                <input type="radio" name="topping" value="Pepperoni" data-cost="70"> 
-                <span class="topping-name">Pepperoni</span>
-                <span class="topping-cost">₹70</span>
-            </label>
-            <label class="topping-item">
-                <input type="radio" name="topping" value="Mushrooms" data-cost="60"> 
-                <span class="topping-name">Mushrooms</span>
-                <span class="topping-cost">₹60</span>
-            </label>
-            <label class="topping-item">
-                <input type="radio" name="topping" value="Onions" data-cost="65"> 
-                <span class="topping-name">Onions</span>
-                <span class="topping-cost">₹65</span>
-            </label>
-            <label class="topping-item">
-                <input type="radio" name="topping" value="Green Peppers" data-cost="75"> 
-                <span class="topping-name">Green Peppers</span>
-                <span class="topping-cost">₹75</span>
-            </label>
-        </div>
+        <div class="topping-options" id="toppingOptions"></div>
+     
         <div class="stepper-buttons">
             <button onclick="nextStep(2)">Back</button>
             <button onclick="nextStep(4)">Next</button>

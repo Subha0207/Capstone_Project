@@ -55,18 +55,73 @@ function filterItems() {
 
     displayItems(filteredPizzas, 'pizza');
 }
+document.addEventListener("DOMContentLoaded", () => {
+    fetch('https://localhost:7028/api/Topping')
+        .then(response => response.json())
+        .then(toppings => {
+            const toppingOptionsContainer = document.getElementById('toppingOptions');
+            
+            toppings.forEach(topping => {
+                const label = document.createElement('label');
+                label.classList.add('topping-item');
 
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.name = 'topping';
+                input.value = topping.name;
+                input.dataset.cost = topping.cost;
+
+                const spanName = document.createElement('span');
+                spanName.classList.add('topping-name');
+                spanName.textContent = topping.name;
+
+                const spanCost = document.createElement('span');
+                spanCost.classList.add('topping-cost');
+                spanCost.textContent = `₹${topping.cost}`;
+
+                label.appendChild(input);
+                label.appendChild(spanName);
+                label.appendChild(spanCost);
+
+                toppingOptionsContainer.appendChild(label);
+            });
+        })
+        .catch(error => console.error('Error fetching toppings:', error));
+});
 let currentPizzaCost = 0;
 
-function openStepper(pizza) {
+async function openStepper(pizza) {
     document.getElementById('stepper-popup').classList.remove('hidden');
     document.querySelector('.step-1').classList.add('active');
 
-    currentPizzaCost = pizza.cost;
+    const sizeOptionsContainer = document.getElementById('size-options');
+    sizeOptionsContainer.innerHTML = '';
 
-    document.getElementById('price-small').textContent = `₹${(currentPizzaCost * 1).toFixed(2)}`;
-    document.getElementById('price-medium').textContent = `₹${(currentPizzaCost * 1.5).toFixed(2)}`;
-    document.getElementById('price-large').textContent = `₹${(currentPizzaCost * 1.8).toFixed(2)}`;
+    const sizes = await fetchPizzaSizes(pizza.pizzaId);
+
+    sizes.forEach(size => {
+        const label = document.createElement('label');
+        label.className = 'radio-label';
+        label.innerHTML = `
+            <input type="radio" name="size" value="${size.sizeId}" data-name="${size.name}" data-cost="${size.cost.toFixed(2)}">
+            <span class="size-name">${size.name}</span>
+            <span class="price" id="price-${size.name.toLowerCase()}">₹${size.cost.toFixed(2)}</span>
+        `;
+        sizeOptionsContainer.appendChild(label);
+    });
+
+    // Add event listener to handle size selection
+    sizeOptionsContainer.addEventListener('change', event => {
+        if (event.target.name === 'size') {
+          
+            const selectedSizeName = event.target.dataset.name;
+            var selectedSizeCost = event.target.dataset.cost;
+
+       
+            console.log(`Selected Size Name: ${selectedSizeName}`);
+            console.log(`Selected Size Cost: ₹${selectedSizeCost}`);
+        }
+    });
 }
 
 function closeStepper() {
@@ -90,49 +145,24 @@ function nextStep(step) {
         document.getElementById('chosen-toppings').textContent = chosenToppings;
     }
 }
-
 function addToCart(pizza) {
-    console.log(`Added to cart: ${pizza.name}`);
+    var pizzaId=pizza.pizzaId;
+    console.log(`Added to cart: ${pizza.pizzaId}`);
     openStepper(pizza);
 }
-function updatePrice() {
-    const size = document.querySelector('input[name="size"]:checked')?.value;
-    const crust = document.querySelector('input[name="crust"]:checked')?.value;
-
-    if (!size) return;
-
-    let sizeMultiplier = 1;
-    if (size === 'Medium') {
-        sizeMultiplier = 1.4;
-    } else if (size === 'Large') {
-        sizeMultiplier = 1.8;
+async function fetchPizzaSizes(pizzaId) {
+    try {
+        const response = await fetch(`https://localhost:7028/api/Size/cost${pizzaId}`);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const sizes = await response.json();
+        return sizes;
+    } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
     }
-
-    const basePrice = currentPizzaCost * sizeMultiplier;
-
-    let crustMultiplier = 0;
-    if (crust === 'Thick') {
-        crustMultiplier = 0.15;
-    } else if (crust === 'Cheese') {
-        crustMultiplier = 0.30;
-    }
-
-    const crustAdjustedPrice = basePrice * (1 + crustMultiplier);
-
-    document.getElementById('price-thin').textContent = `₹${(basePrice).toFixed(2)}`;
-    document.getElementById('price-thick').textContent = `₹${(basePrice * 1.15).toFixed(2)}`;
-    document.getElementById('price-cheese').textContent = `₹${(basePrice * 1.30).toFixed(2)}`;
-
-    // Calculate total topping cost
-    const toppingInputs = document.querySelectorAll('input[name="topping"]:checked');
-    let toppingCost = 0;
-    toppingInputs.forEach(input => {
-        toppingCost += parseFloat(input.getAttribute('data-cost'));
-    });
-
-    const totalPrice = crustAdjustedPrice + toppingCost;
-    document.getElementById('current-price-value').textContent = totalPrice.toFixed(2);
 }
+
 
 
 

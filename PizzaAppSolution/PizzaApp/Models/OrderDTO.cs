@@ -4,28 +4,24 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PizzaApp.Models
 {
-    public class Order
+    public class OrderDTO
     {
-        [Key]
-        public int OrderId { get; set; }
 
-        [Required]
+
         public string PaymentId { get; set; }
-        public Payment Payment { get; set; }
+     
         public int CartId { get; set; }
-        public Cart Cart { get; set; }
-
+     
 
         [Required]
         [EnumDataType(typeof(OrderStatus))]
-        public OrderStatus Status { get; set; }
+        public OrderStatus Status { get; set; } = OrderStatus.OrderPlaced;
 
         [Required]
         public int UserId { get; set; }
-        public User User { get; set; }
+ 
 
         [Required]
         public DateTime OrderDate { get; set; }
-
     }
 }

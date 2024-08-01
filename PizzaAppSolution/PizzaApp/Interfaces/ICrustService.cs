@@ -7,7 +7,7 @@ namespace PizzaApp.Interfaces
     {
         Task<IEnumerable<Crust>> GetAllCrusts();
         public Task<Crust> GetCrustById(int CrustId);
-
-        Task<IEnumerable<CrustDTO>> GetAllCrustPriceByPizzaId(int PizzaId);
+        public  Task<decimal> GetSizeCostById(int pizzaId, int selectedSizeId);
+       // public  Task<IEnumerable<CrustDTO>> GetAllCrustPriceByPizzaIdWithSize(int pizzaId, int selectedSizeId);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PizzaApp.Models;
+using PizzaApp.Models.DTOs;
 using PizzaApp.Models.Enums;
 using PizzaApp.Services;
 
@@ -28,7 +29,7 @@ namespace PizzaApp.Contexts
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
+       
             modelBuilder.Entity<User>().HasKey(u => u.UserId);
             modelBuilder.Entity<Payment>().HasKey(p => p.PaymentId);
             modelBuilder.Entity<Pizza>().HasKey(pz => pz.PizzaId);
@@ -39,8 +40,7 @@ namespace PizzaApp.Contexts
             modelBuilder.Entity<Crust>().HasKey(cr => cr.CrustId);
             modelBuilder.Entity<Size>().HasKey(s => s.SizeId);
             modelBuilder.Entity<Topping>().HasKey(t => t.ToppingId);
-         
-
+  
             var currentDate = DateTime.Now;
             var oneWeekAgo = currentDate.AddDays(-7);
 
@@ -190,19 +190,19 @@ namespace PizzaApp.Contexts
             
                 new Topping
                 {
-                    ToppingId = 2,
+                    ToppingId = 1,
                     Name = ToppingName.Mushrooms,
                     Cost = 29m
                 },
                 new Topping
                 {
-                    ToppingId = 3,
+                    ToppingId = 2,
                     Name = ToppingName.ExtraCheese,
                     Cost = 15m
                 },
                 new Topping
                 {
-                    ToppingId = 4,
+                    ToppingId = 3,
                     Name = ToppingName.BlackOlives,
                     Cost = 20m
                 }

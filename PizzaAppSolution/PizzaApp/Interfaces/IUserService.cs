@@ -1,4 +1,5 @@
 ﻿using PizzaApp.Models;
+using PizzaApp.Models.DTOs;
 
 namespace PizzaApp.Interfaces
 {
