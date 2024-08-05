@@ -5,6 +5,7 @@ namespace PizzaApp.Models.DTOs
 {
     public class CrustDTO
     {
+        public int CrustId { get; set; }
 
         [Required]
         [EnumDataType(typeof(CrustName))]

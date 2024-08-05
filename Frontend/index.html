@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,13 +9,14 @@
     <link rel="icon" href="/images/pizza_logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+
 <body>
     <div class="app-bar">
         <div class="logo">
             <img src="/images/pizza_logo.png" alt="Logo" id="logo-icon">
             <span class="company-name">PIZZAHUB</span>
         </div>
-     
+
         <div class="location-search-container">
             <div class="location-search-prefix">
                 <i class="fa-solid fa-location-dot"></i>
@@ -23,31 +25,58 @@
             <button id="find-location-btn">Find My Location</button>
             <div id="suggestions" class="suggestions"></div>
         </div>
-        
-      
+
+
         <div class="icons">
             <div id="cart-icon" class="icon"><i class="fas fa-shopping-cart"></i></div>
             <div id="profile-icon" class="icon"><i class="fas fa-user"></i></div>
 
         </div>
     </div>
-    
+
     <div class="tabs">
         <div class="tab" id="tab-pizza" data-url="pizza.html">Pizza</div>
         <div class="tab" id="tab-beverage" data-url="beverage.html">Beverage</div>
-        <div class="tab" id="tab-bestseller" data-url="bestseller.html">Bestseller</div>
-        <div class="tab" id="tab-new" data-url="newArrival.html">New</div>
+
     </div>
-    
+
     <iframe id="content-frame" src="" frameborder="0" class="content"></iframe>
-    
+    <div id="popupMessage"></div>
     <script>
+        const token = localStorage.getItem('authToken');
+        document.addEventListener("DOMContentLoaded", () => {
+        const email = localStorage.getItem('email'); // Assuming 'userEmail' is the key used to store the email
+
+        if (email) {
+            const userIdApiUrl = `https://localhost:7028/api/User/GetUserId?email=${encodeURIComponent(email)}`;
+
+            fetch(userIdApiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.userId) {
+                        localStorage.setItem('userId', data.userId);
+                      
+                    } else {
+                        console.error('User ID not found');
+                        // Handle cases where user ID is not found
+                    }
+                })
+                .catch(error => console.error('Error fetching user ID:', error));
+        } else {
+            console.error('Email not found in local storage');
+            // Handle cases where email is not found
+            window.location.href = 'login.html'; // Redirect to login if email is not present
+        }
+    });
+        if (!token) {
+            window.location.href = "login.html";
+        }
         document.getElementById('cart-icon').addEventListener('click', function () {
             window.location.href = 'cart.html';
         });
-
+      
         document.getElementById('profile-icon').addEventListener('click', function () {
-            window.location.href = 'profile.html';
+            window.location.href = 'my_orders.html';
         });
         document.addEventListener('DOMContentLoaded', () => {
             const tabs = document.querySelectorAll('.tab');
@@ -72,4 +101,5 @@
         });
     </script>
 </body>
+
 </html>

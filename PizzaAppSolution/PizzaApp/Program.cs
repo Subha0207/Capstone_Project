@@ -70,7 +70,7 @@ namespace PizzaApp
                    options.Filters.Add(new AuthorizeFilter());
                })
                .ConfigureApiBehaviorOptions(options =>
-                   options.SuppressModelStateInvalidFilter = true
+                   options.SuppressModelStateInvalidFilter = false
                )
                .AddJsonOptions(options =>
                {
@@ -110,6 +110,8 @@ namespace PizzaApp
             builder.Services.AddScoped<ToppingRepository>();
             builder.Services.AddScoped<CartRepository>();
             builder.Services.AddScoped<CartItemRepository>();
+            builder.Services.AddScoped<OrderRepository>();
+            builder.Services.AddScoped<PaymentRepository>();
             #endregion
             #region Services
 
@@ -123,7 +125,8 @@ namespace PizzaApp
             builder.Services.AddScoped<IToppingService, ToppingService>();
             builder.Services.AddScoped<ICartService, CartService>();
             builder.Services.AddScoped<ICartItemService, CartItemService>();
-
+            builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddScoped<IPaymentService, PaymentService>();
             // Register SizeService as a concrete class
             builder.Services.AddScoped<SizeService>();
             #endregion

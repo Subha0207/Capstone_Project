@@ -8,15 +8,34 @@
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/beverage_style.css">
 
+    <style>
+        .popup-message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+
+        .popup-message.error {
+            background-color: #f44336;
+        }
+    </style>
 </head>
 
 <body>
 
     <div class="container" id="beverageContainer"></div>
-
+    <div id="popupMessage" class="popup-message"></div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const beverageContainer = document.getElementById('beverageContainer');
+            const popupMessage = document.getElementById('popupMessage');
 
             fetch('https://localhost:7028/api/Beverage')
                 .then(response => response.json())
@@ -56,11 +75,20 @@
                             beverageNew.textContent = 'New';
                             beverageNew.classList.add('beverage-new');
                             beverageBadgeContainer.appendChild(beverageNew);
+
+                            const debugBanner = document.createElement('div');
+                            debugBanner.className = 'debug-banner';
+                            debugBanner.textContent = '5% Discount';
+                            beverageCard.appendChild(debugBanner);
                         }
 
                         const beverageButton = document.createElement('button');
                         beverageButton.textContent = 'Add';
                         beverageButton.classList.add('beverage-button');
+                        beverageButton.addEventListener('click', () => {
+                            console.log('Adding beverage to cart:', beverage.beverageId);
+                            addToCart(beverage.beverageId);
+                        });
 
                         const beverageName = document.createElement('h2');
                         beverageName.classList.add('beverage-title');
@@ -94,6 +122,45 @@
                     });
                 })
                 .catch(error => console.error('Error fetching beverage data:', error));
+
+            function addToCart(beverageId) {
+                const userId = 1; // Replace with actual user ID if available
+                const payload = {
+                    userId: userId,
+                    beverageId: beverageId
+                };
+
+                fetch('https://localhost:7028/api/CartItem/BeverageCartItem', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Response from server:', data);
+                        if (Number.isInteger(data)) {
+                            showPopupMessage('Item added to cart successfully!');
+                        } else {
+                            showPopupMessage('Failed to add item to cart.', true);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error adding item to cart:', error);
+                        showPopupMessage('Error adding item to cart.', true);
+                    });
+            }
+
+            function showPopupMessage(message, isError = false) {
+                popupMessage.textContent = message;
+                popupMessage.classList.toggle('error', isError);
+                popupMessage.style.display = 'block';
+
+                setTimeout(() => {
+                    popupMessage.style.display = 'none';
+                }, 3000);
+            }
         });
     </script>
 </body>

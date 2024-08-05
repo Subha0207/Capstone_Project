@@ -8,5 +8,6 @@ namespace PizzaApp.Interfaces
         Task<IEnumerable<Size>> GetAllSizes();
         public Task<Size> GetSizeById(int SizeId);
         Task<IEnumerable<SizeDTO>> GetAllSizePriceBySizeId(int PizzaId);
+        public  Task<int> GetCostBySizeIdAndPizzaId(int pizzaId, int sizeId);
     }
 }

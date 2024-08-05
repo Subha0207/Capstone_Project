@@ -1,29 +1,29 @@
 ﻿using PizzaApp.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace PizzaApp.Models
+namespace PizzaApp.Models.DTOs
 {
-    public class Payment
+    public class PaymentDTO
     {
-        [Key]
         public int PaymentId { get; set; }
 
         public int UserId { get; set; }
-        public User User { get; set; }
-
-        [Required]
-        public int CartId { get; set; } 
-        public Cart Cart { get; set; }
-
-        [Required]
-
-        public decimal Amount { get; set; } 
-
-        [Required]
        
+
+        [Required]
+        public int CartId { get; set; }
+      
+
+        [Required]
+
+        public decimal Amount { get; set; }
+
+        [Required]
+
         public PaymentMethod Method { get; set; }
 
         [Required]
         public DateTime PaymentDate { get; set; }
+
     }
 }

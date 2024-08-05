@@ -1,5 +1,9 @@
-﻿using PizzaApp.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using PizzaApp.Exceptions;
+using PizzaApp.Interfaces;
 using PizzaApp.Models;
+using PizzaApp.Models.DTOs;
+using PizzaApp.Models.Enums;
 using PizzaApp.Repositories;
 
 namespace PizzaApp.Services
@@ -21,29 +25,100 @@ namespace PizzaApp.Services
             _paymentRepository = paymentRepository;
 
         }
-        public Task<OrderDTO> AddOrder(OrderInputDTO orderInputDTO)
+        public async Task<int> AddOrder(OrderInputDTO orderInputDTO)
         {
-            throw new NotImplementedException();
+            var order = new Order
+            {
+                PaymentId = orderInputDTO.PaymentId,
+                CartId = orderInputDTO.CartId,
+                UserId = (int)orderInputDTO.UserId,
+                OrderDate = DateTime.Now,
+                Status = OrderStatus.OrderPlaced,
+                Address=orderInputDTO.Address,
+                Phone=orderInputDTO.Phone
+                
+            };
+            await _orderRepository.Add(order);
+            return order.OrderId;
         }
 
-        public Task<IEnumerable<OrderDTO>> GetAllOrders()
+        public async Task<IEnumerable<OrderGetDTO>> GetAllOrders()
         {
-            throw new NotImplementedException();
+            var orders = await _orderRepository.Get();
+            if (!orders.Any())
+            {
+                throw new EmptyException("No cart items found");
+            }
+            var orderDTOs = orders.Select(order => new OrderGetDTO
+            {
+                CartId = order.CartId,
+                UserId = order.UserId, OrderDate=order.OrderDate,
+                OrderId = order.OrderId,
+                PaymentId =order.PaymentId,
+                Status=order.Status, 
+                Phone=order.Phone,
+                Address=order.Address
+               
+                
+            });
+
+            return orderDTOs;
         }
 
-        public Task<OrderDTO> GetOrderById(int OrderId)
+        public async Task<OrderGetDTO> GetOrderById(int OrderId)
         {
-            throw new NotImplementedException();
+            var order = await _orderRepository.GetOrderById(OrderId);
+
+            var ordergetDTO = new OrderGetDTO
+            {  
+                OrderId=order.OrderId,
+                CartId = order.CartId,
+                UserId = order.UserId,
+                OrderDate = order.OrderDate,
+                PaymentId = order.PaymentId,
+                Status = order.Status,Address=order.Address,
+                Phone=order.Phone
+                
+                
+
+
+            };
+
+            return ordergetDTO;
         }
 
-        public Task<IEnumerable<OrderDTO>> GetOrdersByUserId(int userId)
+        public async Task<IEnumerable<OrderGetDTO>> GetOrdersByUserId(int userId)
         {
-            throw new NotImplementedException();
+            var orders = await GetAllOrders();
+            var filteredOrders = orders.Where(order => order.UserId == userId);
+
+            if (!filteredOrders.Any())
+            {
+                throw new EmptyException("No cart items found for the specified user");
+            }
+
+            return filteredOrders;
         }
 
-        public Task<OrderDTO> UpdateOrderStatus(OrderUpdateDTO orderUpdateDTO)
+        public async Task<int> UpdateOrderStatus(OrderUpdateDTO orderUpdateDTO)
         {
-            throw new NotImplementedException();
+            var order = await _orderRepository.GetOrderById(orderUpdateDTO.OrderId);
+            if (order == null)
+            {
+                throw new KeyNotFoundException($"Order with ID {orderUpdateDTO.OrderId} not found.");
+            }
+
+            // Update the order status
+            order.Status = orderUpdateDTO.Status;
+
+            // Save changes
+            await _orderRepository.Update(order);
+
+     
+           
+
+            return order.OrderId;
         }
     }
-}
+ }
+

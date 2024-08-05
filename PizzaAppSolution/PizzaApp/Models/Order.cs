@@ -10,7 +10,7 @@ namespace PizzaApp.Models
         public int OrderId { get; set; }
 
         [Required]
-        public string PaymentId { get; set; }
+        public int PaymentId { get; set; }
         public Payment Payment { get; set; }
         public int CartId { get; set; }
         public Cart Cart { get; set; }
@@ -24,6 +24,8 @@ namespace PizzaApp.Models
         public int UserId { get; set; }
         public User User { get; set; }
 
+        public string Phone { get; set; }
+        public string Address { get; set; }
         [Required]
         public DateTime OrderDate { get; set; }
 

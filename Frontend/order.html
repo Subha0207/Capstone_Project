@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stepper UI</title>
+    <title>Enhanced Payment and Delivery Form</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,85 +12,123 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 30px;
+            margin: 0;
             background-color: #f4f4f4;
         }
 
-        .stepper-container {
-            margin: 20px;
-            height: auto;
-            width: 50%;
+        .form-container {
+
+            max-width: 60%;
             background-color: #fff;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        .stepper {
-            display: flex;
-            justify-content: space-between;
+        .form-group {
             margin-bottom: 20px;
         }
 
-        .step {
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .step-number {
-            background-color: #ddd;
-            color: #fff;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .step-title {
-            font-weight: bold;
-        }
-
-        .step.active .step-number {
-            background-color: #4caf50;
-        }
-
-        .step-content {
-            display: none;
-        }
-
-        .step-content.active {
+        .form-group label {
             display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
         }
 
-        button {
-            padding: 10px 20px;
-            background-color: #4caf50;
+        .form-group input[type="text"],
+        .form-group input[type="tel"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .form-group .input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group .input-row input {
+            flex: 1;
+        }
+
+        .form-group .input-row button {
+            padding: 10px 15px;
+            background-color: #007BFF;
             color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
 
-        button:hover {
-            background-color: #45a049;
+        .form-group .input-row button:hover {
+            background-color: #0056b3;
         }
 
-        .location-search-container {
-            position: relative;
-            margin-bottom: 40px;
+        .payment-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .payment-option {
+            flex: 1 1 calc(50% - 10px);
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            box-sizing: border-box;
+        }
+
+        .payment-option input {
+            margin-right: 10px;
+        }
+
+        .payment-button,
+        #save-btn,
+        .place-order-button {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .place-order-button {
+            background-color: #007BFF;
+            padding: 15px 20px;
+            font-size: 18px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .payment-button:hover,
+        #save-btn:hover,
+        .place-order-button:hover {
+            opacity: 0.9;
         }
 
         .suggestions {
-            position: absolute;
-            background-color: #fff;
+            display: none;
+            margin-top: 5px;
             border: 1px solid #ddd;
-            width: 100%;
-            max-height: 200px;
+            border-radius: 5px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-height: 150px;
             overflow-y: auto;
             z-index: 1000;
+            position: absolute;
+            width: calc(100% - 20px);
         }
 
         .suggestion-item {
@@ -102,298 +140,354 @@
             background-color: #f0f0f0;
         }
 
-        #order-details {
-            max-width: 800px;
-            margin: 20px auto;
-            border: 1px solid #ddd;
-            padding: 20px;
-            border-radius: 10px;
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        #cardInfo input {
+            margin-bottom: 10px;
         }
-
-        #order-details p {
-            font-size: 18px;
-            color: #555;
-            margin-bottom: 20px;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        li {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        li:last-child {
-            border-bottom: none;
-        }
-
-        .item-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .item-info span {
-            margin-bottom: 5px;
-            color: #555;
-        }
-
-        .item-info span:last-child {
-            margin-bottom: 0;
-        }
-
-        .item-price {
-            font-size: 16px;
-            color: #333;
-            font-weight: bold;
-        }
-
-        .item-discount {
-            font-size: 14px;
-            color: #28a745;
-            font-weight: bold;
-        }
-
-        .total-price {
-            text-align: right;
-            font-size: 20px;
-            color: #333;
-            font-weight: bold;
-            margin-top: 20px;
-        }
-
     </style>
 </head>
 
 <body>
+    <div class="form-container">
+        <div class="form-group">
+            <label for="payment-method">Payment Options</label>
+            <div id="payment-method" class="payment-options">
+                <div class="payment-option">
+                    <input type="radio" id="creditCard" name="paymentMethod" value="CreditCard">
+                    <label for="creditCard">Credit Card</label>
+                </div>
+                <div class="payment-option">
+                    <input type="radio" id="debitCard" name="paymentMethod" value="DebitCard">
+                    <label for="debitCard">Debit Card</label>
+                </div>
+                <div class="payment-option">
+                    <input type="radio" id="upi" name="paymentMethod" value="UPI">
+                    <label for="upi">UPI</label>
+                </div>
+                <div class="payment-option">
+                    <input type="radio" id="cashOnDelivery" name="paymentMethod" value="CashOnDelivery">
+                    <label for="cashOnDelivery">Cash on Delivery</label>
+                </div>
+            </div>
+        </div>
 
-    <div class="stepper-container">
-        <div class="stepper">
-            <div class="step" id="step-1" onclick="showStep(1)">
-                <div class="step-number">1</div>
-                <div class="step-title">Order Details</div>
+        <div class="form-group" id="additionalInfo" style="display: none;">
+            <div id="cardInfo" style="display: none;">
+                <label for="cardNumber">Card Information</label>
+                <input type="text" id="cardNumber" placeholder="Card Number">
+                <input type="text" id="cardExpiry" placeholder="Expiry Date (MM/YY)">
+                <input type="text" id="cardCVV" placeholder="CVV">
             </div>
-            <div class="step" id="step-2" onclick="showStep(2)">
-                <div class="step-number">2</div>
-                <div class="step-title">Delivery Address</div>
-            </div>
-            <div class="step" id="step-3" onclick="showStep(3)">
-                <div class="step-number">3</div>
-                <div class="step-title">Payment</div>
+            <div id="upiInfo" style="display: none;">
+                <label for="upiId">UPI ID</label>
+                <input type="text" id="upiId" placeholder="UPI ID">
             </div>
         </div>
-        <div class="step-content" id="content-1">
-       
-            <div id="order-details"></div>
-            <button onclick="nextStep(2)">Next</button>
-        </div>
-        <div class="step-content" id="content-2">
-         
-            <div class="location-search-container">
+
+        <button class="payment-button" type="submit">Pay</button>
+
+        <div class="form-group location-search-container">
+            <label for="phone-number">Phone Number</label>
+            <input type="tel" id="phone-number" placeholder="Enter your phone number">
+
+            <label for="location-search">Delivery Address</label>
+            <div class="input-row">
                 <input type="text" id="location-search" placeholder="Search for a location">
                 <button id="find-location-btn">Find My Location</button>
-                <div id="suggestions" class="suggestions"></div>
             </div>
+            <div id="suggestions" class="suggestions"></div>
+        </div>
 
-            <button onclick="prevStep(1)">Back</button>
-            <button onclick="nextStep(3)">Next</button>
-        </div>
-        <div class="step-content" id="content-3">
-        
-            <p>Payment information goes here.</p>
-            <button onclick="prevStep(2)">Back</button>
-            <button>Submit</button>
-        </div>
+        <div class="buttons"></div>
+
+        <button id="save-btn">Save</button>
+        <button id="place-order-btn" class="place-order-button">Place Order</button>
+
     </div>
 
     <script>
+        const apiKey = '560ebb85ebc34726b89ebc6102628531';
+        const phoneInput = document.getElementById('phone-number');
+        const locationInput = document.getElementById('location-search');
+        const findLocationBtn = document.getElementById('find-location-btn');
+        const saveBtn = document.getElementById('save-btn');
+        const suggestionsContainer = document.getElementById('suggestions');
+        const paymentForm = document.getElementById('payment-method');
+        const additionalInfo = document.getElementById('additionalInfo');
+        const cardInfo = document.getElementById('cardInfo');
+        const upiInfo = document.getElementById('upiInfo');
+        const placeOrderBtn = document.getElementById('place-order-btn');
 
-        const apiKey = '560ebb85ebc34726b89ebc6102628531'; // Replace with your OpenCage API key
+        // Event listener to show/hide relevant sections based on selected payment method
+        document.getElementById('payment-method').addEventListener('change', function () {
+            const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const cardInfo = document.getElementById('cardInfo');
+            const upiInfo = document.getElementById('upiInfo');
+            const additionalInfo = document.getElementById('additionalInfo');
 
-        document.getElementById('find-location-btn').addEventListener('click', () => {
+            // Show/hide relevant sections based on the selected payment method
+            cardInfo.style.display = (selectedMethod === 'CreditCard' || selectedMethod === 'DebitCard') ? 'block' : 'none';
+            upiInfo.style.display = (selectedMethod === 'UPI') ? 'block' : 'none';
+            additionalInfo.style.display = (selectedMethod === 'CreditCard' || selectedMethod === 'DebitCard' || selectedMethod === 'UPI') ? 'block' : 'none';
+        });
+
+        // Function to confirm payment
+        function confirmPayment() {
+            const totalPrice = localStorage.getItem('totalPrice');
+            const userId = localStorage.getItem('userId');
+            const cartId = localStorage.getItem('activeCartId');
+            const paymentMethod = localStorage.getItem('paymentMethod');
+            localStorage.setItem('paymentId', 1);
+            fetch('https://localhost:7028/api/Payment/AddPayment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: parseInt(userId),
+                    cartId: parseInt(cartId),
+                    method: paymentMethod
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Payment response:', data);
+                    localStorage.setItem('paymentId', data.paymentId);
+                    if (data.status === 'success') {
+                        alert('Payment successful!');
+
+                    }
+                })
+                .catch(error => {
+                    console.error('Error during payment:', error);
+                    alert('Error during payment. Please try again.');
+                });
+        }
+
+        // Validation functions
+        function isValidCardNumber(cardNumber) {
+            return /^\d{16}$/.test(cardNumber);
+        }
+
+        function isValidExpiryDate(expiryDate) {
+            return /^(0[1-9]|1[0-2])\/\d{2}$/.test(expiryDate);
+        }
+
+        function isValidCVV(cvv) {
+            return /^\d{3}$/.test(cvv);
+        }
+
+        // Handle form submission
+        document.querySelector('.form-container').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked');
+
+            if (!selectedMethod) {
+                alert('Please select a payment method.');
+                return;
+            }
+
+            localStorage.setItem('paymentMethod', selectedMethod.value);
+
+            if (['CreditCard', 'DebitCard'].includes(selectedMethod.value)) {
+                const cardNumber = document.getElementById('cardNumber').value;
+                const cardExpiry = document.getElementById('cardExpiry').value;
+                const cardCVV = document.getElementById('cardCVV').value;
+
+                if (!cardNumber || !cardExpiry || !cardCVV) {
+                    alert('Please fill out all card details.');
+                    return;
+                }
+                if (!isValidCardNumber(cardNumber)) {
+                    alert('Invalid card number. Please enter a 16-digit card number.');
+                    return;
+                }
+                if (!isValidExpiryDate(cardExpiry)) {
+                    alert('Invalid expiry date. Please enter in MM/YY format.');
+                    return;
+                }
+                if (!isValidCVV(cardCVV)) {
+                    alert('Invalid CVV. Please enter a 3-digit CVV.');
+                    return;
+                }
+            } else if (selectedMethod.value === 'UPI') {
+                const upiId = document.getElementById('upiId').value;
+                if (!upiId) {
+                    alert('Please enter your UPI ID.');
+                    return;
+                }
+            }
+
+            confirmPayment();
+            document.querySelector('.form-container').reset();
+            document.getElementById('additionalInfo').style.display = 'none';
+        });
+
+        // Save button validation
+        document.getElementById('save-btn').addEventListener('click', function () {
+            const phoneNumber = document.getElementById('phone-number').value;
+            const locationSearch = document.getElementById('location-search').value;
+
+            if (!phoneNumber || !locationSearch) {
+                alert('Please fill out all required fields.');
+                return;
+            }
+
+            localStorage.setItem('phoneNumber', phoneNumber);
+            localStorage.setItem('locationSearch', locationSearch);
+
+            alert('Data saved successfully!');
+        });
+        document.getElementById('place-order-btn').addEventListener('click', function () {
+            const cartId = localStorage.getItem('activeCartId') || 0;
+            const userId = localStorage.getItem('userId') || 0;
+            const address = localStorage.getItem('location') || 'string';
+            const phone = localStorage.getItem('phoneNumber') || 'string';
+
+            const paymentId = localStorage.getItem('paymentId');
+            // Construct the payload
+            const payload = {
+                paymentId: parseInt(paymentId, 10),
+                cartId: parseInt(cartId, 10),
+                userId: parseInt(userId, 10),
+                address: address,
+                phone: phone
+            };
+
+            // Make the API request
+            fetch('https://localhost:7028/api/Order/AddOrder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+
+                  
+                        // Navigate to my_orders.html
+                        window.location.href = 'my_orders.html';
+                   
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle error here
+                    // For example, display an error message
+                });
+        });
+
+
+        function isValidCardNumber(cardNumber) {
+            return /^\d{16}$/.test(cardNumber);
+        }
+
+        function isValidExpiryDate(expiryDate) {
+            return /^(0[1-9]|1[0-2])\/\d{2}$/.test(expiryDate);
+        }
+
+        function isValidCVV(cvv) {
+            return /^\d{3}$/.test(cvv);
+        }
+
+
+        paymentForm.addEventListener('change', (event) => {
+            const selectedPaymentMethod = event.target.value;
+
+            additionalInfo.style.display = 'none';
+            cardInfo.style.display = 'none';
+            upiInfo.style.display = 'none';
+
+            if (selectedPaymentMethod === 'CreditCard' || selectedPaymentMethod === 'DebitCard') {
+                additionalInfo.style.display = 'block';
+                cardInfo.style.display = 'block';
+            } else if (selectedPaymentMethod === 'UPI') {
+                additionalInfo.style.display = 'block';
+                upiInfo.style.display = 'block';
+            }
+        });
+
+        saveBtn.addEventListener('click', () => {
+            const phoneNumber = phoneInput.value.trim();
+            const location = locationInput.value.trim();
+
+            if (!/^\d{10}$/.test(phoneNumber)) {
+                alert('Please enter a valid 10-digit phone number.');
+                return;
+            }
+
+            if (!location) {
+                alert('Please enter a location.');
+                return;
+            }
+
+            localStorage.setItem('phoneNumber', phoneNumber);
+            localStorage.setItem('location', location);
+
+            alert('Phone number and location saved successfully.');
+        });
+
+        findLocationBtn.addEventListener('click', () => {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition, handleGeolocationError);
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    fetch(`https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${apiKey}`)
+                        .then((response) => response.json())
+                        .then((data) => {
+                            if (data.results && data.results.length > 0) {
+                                locationInput.value = data.results[0].formatted;
+                            } else {
+                                alert('No location found.');
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('Error fetching location:', error);
+                            alert('Error fetching location.');
+                        });
+                });
             } else {
                 alert('Geolocation is not supported by this browser.');
             }
         });
 
-        function showPosition(position) {
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
+        locationInput.addEventListener('input', () => {
+            const searchText = locationInput.value.trim();
+            if (searchText.length < 3) {
+                suggestionsContainer.style.display = 'none';
+                return;
+            }
 
-            // Call the reverse geocoding API to get the place name
-            const apiUrl = `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${apiKey}`;
-
-            fetch(apiUrl)
-                .then(response => response.json())
-                .then(data => {
+            fetch(`https://api.opencagedata.com/geocode/v1/json?q=${searchText}&key=${apiKey}`)
+                .then((response) => response.json())
+                .then((data) => {
                     if (data.results && data.results.length > 0) {
-                        const suggestionsContainer = document.getElementById('suggestions');
                         suggestionsContainer.innerHTML = '';
-
-                        data.results.forEach(result => {
-                            const placeName = result.formatted;
-                            const div = document.createElement('div');
-                            div.classList.add('suggestion-item');
-                            div.textContent = placeName;
-                            div.addEventListener('click', function () {
-                                document.getElementById('location-search').value = placeName;
-                                suggestionsContainer.innerHTML = ''; // Clear suggestions
+                        data.results.forEach((result) => {
+                            const suggestionItem = document.createElement('div');
+                            suggestionItem.className = 'suggestion-item';
+                            suggestionItem.textContent = result.formatted;
+                            suggestionItem.addEventListener('click', () => {
+                                locationInput.value = result.formatted;
+                                suggestionsContainer.style.display = 'none';
                             });
-                            suggestionsContainer.appendChild(div);
+                            suggestionsContainer.appendChild(suggestionItem);
                         });
+                        suggestionsContainer.style.display = 'block';
                     } else {
-                        alert('Place name not found.');
+                        suggestionsContainer.style.display = 'none';
                     }
                 })
-                .catch(error => {
-                    console.error('Error fetching the place name:', error);
-                    alert('Error fetching the place name.');
+                .catch((error) => {
+                    console.error('Error fetching suggestions:', error);
+                    suggestionsContainer.style.display = 'none';
                 });
-        }
-
-        function handleGeolocationError(error) {
-            switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    alert('User denied the request for Geolocation.');
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    alert('Location information is unavailable.');
-                    break;
-                case error.TIMEOUT:
-                    alert('The request to get user location timed out.');
-                    break;
-                case error.UNKNOWN_ERROR:
-                    alert('An unknown error occurred.');
-                    break;
-            }
-        }
-        document.addEventListener('DOMContentLoaded', () => {
-            const orderDetailsDiv = document.getElementById('order-details');
-
-            const orderDetails = JSON.parse(localStorage.getItem('orderDetails'));
-
-            if (orderDetails) {
-                const { totalPrice, cartItems } = orderDetails;
-
-                let htmlContent = '<ul>';
-                cartItems.forEach(item => {
-                    htmlContent += `
-                        <li>
-                            <div class="item-info">
-                                <span>CartItemId: ${item.cartItemId}</span>
-                                <span>PizzaId: ${item.pizzaId}</span>
-                                <span>CrustId: ${item.crustId}</span>
-                                <span>SizeId: ${item.sizeId}</span>
-                                <span>ToppingId: ${item.toppingId}</span>
-                                <span>PizzaQuantity: ${item.pizzaQuantity}</span>
-                                ${item.pizzaDiscount > 0 ? `<span class="item-discount">Discount: $${item.pizzaDiscount.toFixed(2)}</span>` : ''}
-                            </div>
-                            <div class="item-price">
-                                $${item.pizzaFinalPrice.toFixed(2)}
-                            </div>
-                        </li>`;
-                });
-                htmlContent += '</ul>';
-                htmlContent += `<p class="total-price">Total Price: $${totalPrice.toFixed(2)}</p>`;
-
-                orderDetailsDiv.innerHTML = htmlContent;
-            } else {
-                orderDetailsDiv.innerHTML = '<p>No order details found.</p>';
-            }
-        });
-   
-        document.addEventListener('DOMContentLoaded', function () {
-            const locationInput = document.getElementById('location-search');
-            const suggestionsContainer = document.getElementById('suggestions');
-
-            locationInput.addEventListener('input', function () {
-                const query = locationInput.value.trim();
-
-                // Clear previous suggestions
-                suggestionsContainer.innerHTML = '';
-
-                if (query.length > 0) {
-                    // Fetch suggestions from OpenCage API
-                    const apiUrl = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(query)}&key=${apiKey}`;
-
-                    fetch(apiUrl)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.results && data.results.length > 0) {
-                                data.results.forEach(result => {
-                                    const div = document.createElement('div');
-                                    div.classList.add('suggestion-item');
-                                    div.textContent = result.formatted;
-                                    div.addEventListener('click', function () {
-                                        locationInput.value = result.formatted;
-                                        suggestionsContainer.innerHTML = ''; // Clear suggestions
-                                    });
-                                    suggestionsContainer.appendChild(div);
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error fetching suggestions:', error);
-                        });
-                }
-            });
-
-            // Close suggestions container when clicking outside
-            document.addEventListener('click', function (event) {
-                if (!event.target.closest('.location-search-container')) {
-                    suggestionsContainer.innerHTML = '';
-                }
-            });
         });
 
-        document.addEventListener('DOMContentLoaded', (event) => {
-            showStep(1);
-            fetchCartDetails(1); // Fetch cart details for cart ID 2
-        });
-
-        function showStep(step) {
-            const steps = document.querySelectorAll('.step');
-            const contents = document.querySelectorAll('.step-content');
-
-            steps.forEach((stepElement, index) => {
-                if (index + 1 === step) {
-                    stepElement.classList.add('active');
-                } else {
-                    stepElement.classList.remove('active');
-                }
-            });
-
-            contents.forEach((contentElement, index) => {
-                if (index + 1 === step) {
-                    contentElement.classList.add('active');
-                } else {
-                    contentElement.classList.remove('active');
-                }
-            });
-        }
-
-        function nextStep(step) {
-            showStep(step);
-        }
-
-        function prevStep(step) {
-            showStep(step);
-        }
 
 
-   </script>
-
+    </script>
 </body>
 
 </html>

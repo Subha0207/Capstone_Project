@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PizzaApp.Interfaces;
 using System.Threading.Tasks;
 using PizzaApp.Models.DTOs;
+using PizzaApp.Models;
 
 namespace PizzaApp.Controllers
 {
@@ -37,19 +38,79 @@ namespace PizzaApp.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+        [HttpGet("activeCart{userId}")]
+        public async Task<ActionResult<int>> GetActiveCartByUserId(int userId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                    var customErrorResponse = new
+                    {
+                        ErrCode = 1001,
+                        Message = "One or more validation errors occurred.",
+                        Error = errors
+                    };
 
+                    return BadRequest(customErrorResponse);
+                }
+                var cart = await _cartService.GetActiveCartByUserId(userId);
+                if (cart == null)
+                {
+                    return NotFound();
+                }
+                return Ok(cart.CartId);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
         // PUT: api/Cart/{cartId}/checkout
         [HttpPut("{cartId}/checkout")]
         public async Task<ActionResult<CartUpdateDTO>> UpdateCartCheckoutStatus(int cartId)
         {
             try
             {
+
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                    var customErrorResponse = new
+                    {
+                        ErrCode = 1001,
+                        Message = "One or more validation errors occurred.",
+                        Error = errors
+                    };
+
+                    return BadRequest(customErrorResponse);
+                }
                 var updatedCartDTO = await _cartService.UpdateCartCheckoutStatus(cartId);
                 if (updatedCartDTO == null)
-                {
+                {  
                     return NotFound();
                 }
                 return Ok(updatedCartDTO);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        // PUT: api/Cart/{cartId}/checkout
+        [HttpGet("{cartId}/orderDetails")]
+        public async Task<ActionResult<OrderDetailsDTO>> GetOrderDetails(int cartId)
+        {
+            try
+            {
+                var orderDetailsDTO = await _cartService.GetOrderDetailsByCartId(cartId);
+                if (orderDetailsDTO == null)
+                {
+                    return NotFound();
+                }
+                return Ok(orderDetailsDTO);
             }
             catch (Exception ex)
             {

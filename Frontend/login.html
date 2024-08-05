@@ -88,36 +88,32 @@
             const token = response.credential;
             console.log('Token:', token);
 
+            // Save the token to localStorage
+            localStorage.setItem('authToken', token);
+            localStorage.setItem('paymentId', 1);
+            localStorage.setItem('userId', 1);
+            // Manually decode the JWT token
+            const decodeJwtPayload = (token) => {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+
+                return JSON.parse(jsonPayload);
+            };
+
+            const decodedToken = decodeJwtPayload(token);
+            console.log(decodedToken);
+
+
+
             try {
-                let authResponse = await fetch('https://localhost:7028/api/v1/auth/google', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ token: token })
-                });
 
-                if (!authResponse.ok) {
-                    let errorText = await authResponse.text();
-                    throw new Error(`Failed to authenticate with Google: ${errorText}`);
-                }
 
-                // Manually decode the JWT token
-                const decodeJwtPayload = (token) => {
-                    const base64Url = token.split('.')[1];
-                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
-                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                    }).join(''));
-
-                    return JSON.parse(jsonPayload);
-                };
-
-                const decodedToken = decodeJwtPayload(token);
+                // Fetch user role using the email (if needed)
                 const userEmail = decodedToken.email; // Adjust this to match the actual claim for the email in your token
-
-                // Fetch user role using the email
+                localStorage.setItem('email', userEmail);
                 let roleResponse = await fetch(`https://localhost:7028/api/User/GetUserRole?email=${encodeURIComponent(userEmail)}`);
                 if (!roleResponse.ok) {
                     let errorText = await roleResponse.text();
@@ -126,25 +122,6 @@
 
                 let userRole = await roleResponse.json();
                 console.log('User Role:', userRole);
-
-                // Fetch user ID and store in local storage
-                const apiUrl = `https://localhost:7028/api/User/GetUserId?email=${encodeURIComponent(userEmail)}`;
-                const userIdResponse = await fetch(apiUrl);
-
-                if (!userIdResponse.ok) {
-                    let errorText = await userIdResponse.text();
-                    throw new Error(`Failed to get user ID: ${errorText}`);
-                }
-
-                const userIdData = await userIdResponse.json();
-                console.log('User ID Data:', userIdData);
-
-                if (userIdData && userIdData.userId) {
-                    localStorage.setItem('userId', userIdData.userId);
-                    console.log('User ID stored in local storage:', userIdData.userId);
-                } else {
-                    console.error('User ID not found in response.');
-                }
 
                 if (userRole === 0) {
                     window.location.href = 'admin.html';
@@ -156,6 +133,7 @@
                 console.error('Error:', error);
             }
         }
+    
     </script>
 </body>
 

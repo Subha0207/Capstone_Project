@@ -12,7 +12,7 @@ using PizzaApp.Contexts;
 namespace PizzaApp.Migrations
 {
     [DbContext(typeof(PizzaAppContext))]
-    [Migration("20240801153115_init")]
+    [Migration("20240803082458_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -77,7 +77,7 @@ namespace PizzaApp.Migrations
                             IsAvailable = false,
                             IsBestSeller = true,
                             Name = "Coca Cola",
-                            UploadDate = new DateTime(2024, 7, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UploadDate = new DateTime(2024, 7, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Volume = "200ml"
                         },
                         new
@@ -184,6 +184,9 @@ namespace PizzaApp.Migrations
                     b.Property<int>("CrustId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsCheckedout")
+                        .HasColumnType("bit");
+
                     b.Property<decimal?>("PizzaCost")
                         .HasColumnType("decimal(18,2)");
 
@@ -272,32 +275,6 @@ namespace PizzaApp.Migrations
                         });
                 });
 
-            modelBuilder.Entity("PizzaApp.Models.DTOs.UserDTO", b =>
-                {
-                    b.Property<int>("UserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"), 1L, 1);
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("UserDTO");
-                });
-
             modelBuilder.Entity("PizzaApp.Models.Order", b =>
                 {
                     b.Property<int>("OrderId")
@@ -306,18 +283,22 @@ namespace PizzaApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"), 1L, 1);
 
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("CartId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PaymentId")
+                    b.Property<int>("PaymentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PaymentId1")
-                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -329,7 +310,7 @@ namespace PizzaApp.Migrations
 
                     b.HasIndex("CartId");
 
-                    b.HasIndex("PaymentId1");
+                    b.HasIndex("PaymentId");
 
                     b.HasIndex("UserId");
 
@@ -356,7 +337,14 @@ namespace PizzaApp.Migrations
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("PaymentId");
+
+                    b.HasIndex("CartId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Payments");
                 });
@@ -413,7 +401,7 @@ namespace PizzaApp.Migrations
                             IsBestSeller = true,
                             IsVeg = true,
                             Name = "Margherita",
-                            UploadDate = new DateTime(2024, 8, 1, 21, 1, 13, 116, DateTimeKind.Local).AddTicks(200)
+                            UploadDate = new DateTime(2024, 8, 3, 13, 54, 56, 778, DateTimeKind.Local).AddTicks(5535)
                         },
                         new
                         {
@@ -425,7 +413,7 @@ namespace PizzaApp.Migrations
                             IsBestSeller = true,
                             IsVeg = false,
                             Name = "Pepperoni",
-                            UploadDate = new DateTime(2024, 7, 19, 21, 1, 13, 116, DateTimeKind.Local).AddTicks(200)
+                            UploadDate = new DateTime(2024, 7, 21, 13, 54, 56, 778, DateTimeKind.Local).AddTicks(5535)
                         },
                         new
                         {
@@ -437,7 +425,7 @@ namespace PizzaApp.Migrations
                             IsBestSeller = false,
                             IsVeg = true,
                             Name = "Vegetarian Supreme",
-                            UploadDate = new DateTime(2024, 7, 15, 21, 1, 13, 116, DateTimeKind.Local).AddTicks(200)
+                            UploadDate = new DateTime(2024, 7, 17, 13, 54, 56, 778, DateTimeKind.Local).AddTicks(5535)
                         },
                         new
                         {
@@ -449,7 +437,7 @@ namespace PizzaApp.Migrations
                             IsBestSeller = false,
                             IsVeg = false,
                             Name = "BBQ Chicken",
-                            UploadDate = new DateTime(2024, 7, 10, 21, 1, 13, 116, DateTimeKind.Local).AddTicks(200)
+                            UploadDate = new DateTime(2024, 7, 12, 13, 54, 56, 778, DateTimeKind.Local).AddTicks(5535)
                         },
                         new
                         {
@@ -461,7 +449,7 @@ namespace PizzaApp.Migrations
                             IsBestSeller = false,
                             IsVeg = false,
                             Name = "Hawaiian",
-                            UploadDate = new DateTime(2024, 7, 15, 21, 1, 13, 116, DateTimeKind.Local).AddTicks(200)
+                            UploadDate = new DateTime(2024, 7, 17, 13, 54, 56, 778, DateTimeKind.Local).AddTicks(5535)
                         });
                 });
 
@@ -531,19 +519,19 @@ namespace PizzaApp.Migrations
                     b.HasData(
                         new
                         {
-                            ToppingId = 2,
+                            ToppingId = 1,
                             Cost = 29m,
                             Name = 1
                         },
                         new
                         {
-                            ToppingId = 3,
+                            ToppingId = 2,
                             Cost = 15m,
                             Name = 2
                         },
                         new
                         {
-                            ToppingId = 4,
+                            ToppingId = 3,
                             Cost = 20m,
                             Name = 3
                         });
@@ -621,24 +609,43 @@ namespace PizzaApp.Migrations
                     b.HasOne("PizzaApp.Models.Cart", "Cart")
                         .WithMany()
                         .HasForeignKey("CartId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("PizzaApp.Models.Payment", "Payment")
                         .WithMany()
-                        .HasForeignKey("PaymentId1")
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PizzaApp.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Cart");
+
+                    b.Navigation("Payment");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("PizzaApp.Models.Payment", b =>
+                {
+                    b.HasOne("PizzaApp.Models.Cart", "Cart")
+                        .WithMany()
+                        .HasForeignKey("CartId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PizzaApp.Models.DTOs.UserDTO", "User")
+                    b.HasOne("PizzaApp.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Cart");
-
-                    b.Navigation("Payment");
 
                     b.Navigation("User");
                 });

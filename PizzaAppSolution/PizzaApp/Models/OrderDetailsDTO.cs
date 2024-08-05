@@ -5,6 +5,6 @@ namespace PizzaApp.Models
     public class OrderDetailsDTO
     {
         public decimal TotalPrice { get; set; }
-        public List<CartItemPizzaDTO> CartItems { get; set; }
+        public List<ICartItemDTO> CartItems { get; set; }
     }
 }

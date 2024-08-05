@@ -9,6 +9,7 @@ namespace PizzaApp.Services
 {
     public class CartItemService : ICartItemService
     {
+        private readonly BeverageRepository _beverageRepository;
         private readonly CartItemRepository _cartItemRepository;
         private readonly CartRepository _cartRepository;
         private readonly PizzaRepository _pizzaRepository;
@@ -16,9 +17,10 @@ namespace PizzaApp.Services
         private readonly SizeRepository _sizeRepository;
         private readonly ToppingRepository _toppingRepository;
 
-        public CartItemService(CartItemRepository cartItemRepository, CartRepository cartRepository, PizzaRepository pizzaRepository,CrustRepository crustRepository,SizeRepository sizeRepository,ToppingRepository toppingRepository
+        public CartItemService(CartItemRepository cartItemRepository, CartRepository cartRepository, PizzaRepository pizzaRepository,CrustRepository crustRepository,SizeRepository sizeRepository,ToppingRepository toppingRepository,BeverageRepository beverageRepository
             )
         {
+            _beverageRepository = beverageRepository;
             _cartItemRepository = cartItemRepository;
             _cartRepository = cartRepository;
             _pizzaRepository = pizzaRepository;
@@ -84,170 +86,196 @@ namespace PizzaApp.Services
             await _cartItemRepository.Add(cartItem);
 
             // Update the cart total price
-            cart.TotalPrice += cartItem.PizzaFinalPrice;
+            cart.TotalPrice += cartItem.PizzaTotalPrice;
             await _cartRepository.Update(cart);
 
             // Return the CartItemId
             return cartItem.CartItemId;
         }
 
-
-
-        public async Task<IEnumerable<CartItemPizzaDTO>> GetAllCartItems()
-        {
-            var cartItems = await _cartItemRepository.Get();
-            if (!cartItems.Any())
-            {
-                throw new EmptyException("No cart items found");
-            }
-            var cartItemDTOs = cartItems.Select(cartItem => new CartItemPizzaDTO
-            {
-                CartItemId = cartItem.CartItemId,
-                UserId = cartItem.UserId,
-                PizzaId = (int)cartItem.PizzaId,
-                SizeId = (int)cartItem.SizeId,
-                CrustId = (int)cartItem.CrustId,
-                ToppingId = (int)cartItem.ToppingId,
-                PizzaCost = (decimal)cartItem.PizzaCost,
-                PizzaDiscount = (decimal)cartItem.PizzaDiscount,
-                PizzaFinalPrice= (decimal)cartItem.PizzaFinalPrice,
-                PizzaTotalPrice = (decimal)cartItem.PizzaTotalPrice,
-                PizzaQuantity = cartItem.PizzaQuantity,
-           
-            });
-
-            return cartItemDTOs;
-
-        }
-
-        public async Task<CartItemPizzaDTO> GetCartItemById(int cartItemId)
+        public async Task<object> GetCartItemById(int cartItemId)
         {
             var cartItem = await _cartItemRepository.GetCartItemByCartItemId(cartItemId);
 
-            var cartItemDTO = new CartItemPizzaDTO
+            if (cartItem == null)
             {
-                CartItemId = cartItem.CartItemId,
-                UserId = cartItem.UserId,
-                PizzaId = (int)cartItem.PizzaId,
-                CrustId = (int)cartItem.CrustId,
-                SizeId = (int)cartItem.SizeId,
-                ToppingId = (int)cartItem.ToppingId,
-                PizzaCost = (decimal)cartItem.PizzaCost,
-                PizzaDiscount = (decimal)cartItem.PizzaDiscount,
-                PizzaFinalPrice = (decimal)cartItem.PizzaFinalPrice,
-                PizzaTotalPrice = (decimal)cartItem.PizzaTotalPrice,
-                PizzaQuantity = cartItem.PizzaQuantity,
-               
-            };
-
-            return cartItemDTO;
-
-        }
-
-        public async Task<CartItemPizzaDTO> DeleteByCartItemId(int cartItemId)
-        {
-            var cartItem = await _cartItemRepository.DeleteByCartItemId(cartItemId);
-
-            var cartItemDTO = new CartItemPizzaDTO
-            {
-                CartItemId = cartItem.CartItemId,
-                UserId = cartItem.UserId,
-                PizzaId = (int)cartItem.PizzaId,
-                CrustId = (int)cartItem.CrustId,
-                ToppingId = (int)cartItem.ToppingId,
-                SizeId = (int)cartItem.SizeId,
-                PizzaCost = (decimal)cartItem.PizzaCost,
-                PizzaDiscount = (decimal)cartItem.PizzaDiscount,
-                PizzaFinalPrice = (decimal)cartItem.PizzaFinalPrice,
-                PizzaTotalPrice = (decimal)cartItem.PizzaTotalPrice,
-                PizzaQuantity = cartItem.PizzaQuantity,
-               
-            };
-
-            return cartItemDTO;
-
-        }
-
-        public async Task<IEnumerable<CartItemPizzaDTO>> GetCartItemsByUserId(int userId)
-        {
-            var allCartItems = await GetAllCartItems();
-            var filteredCartItems = allCartItems.Where(cartItem => cartItem.UserId == userId);
-
-            if (!filteredCartItems.Any())
-            {
-                throw new EmptyException("No cart items found for the specified user");
+                throw new KeyNotFoundException("CartItem not found.");
             }
 
-            return filteredCartItems;
-        }
-
-        public async Task<IEnumerable<CartItemBeverageDTO>> GetAllBeverageCartItems()
-        {
-            var cartItems = await _cartItemRepository.Get();
-            if (!cartItems.Any())
+            if (cartItem.PizzaId.HasValue)
             {
-                throw new EmptyException("No cart items found");
+                var cartItemPizzaDTO = new CartItemPizzaDTO
+                {
+                    CartItemId = cartItem.CartItemId,
+                    UserId = cartItem.UserId,
+                    PizzaId = (int)cartItem.PizzaId,
+                    CrustId = (int)cartItem.CrustId,
+                    SizeId = (int)cartItem.SizeId,
+                    ToppingId = (int)cartItem.ToppingId,
+                    PizzaCost = (decimal)cartItem.PizzaCost,
+                    PizzaDiscount = (decimal)cartItem.PizzaDiscount,
+                    PizzaFinalPrice = (decimal)cartItem.PizzaFinalPrice,
+                    PizzaTotalPrice = (decimal)cartItem.PizzaTotalPrice,
+                    PizzaQuantity = cartItem.PizzaQuantity.Value,
+                    
+                };
+
+                return cartItemPizzaDTO;
             }
-            var cartItemDTOs = cartItems.Select(cartItem => new CartItemBeverageDTO
+            else if (cartItem.BeverageId.HasValue)
             {
-                CartItemId = cartItem.CartItemId,
-                UserId = cartItem.UserId,
-                BeverageId = (int)cartItem.BeverageId,
-                BeverageCost = (decimal)cartItem.BeverageCost,
-                BeverageTotalPrice = (decimal)cartItem.BeverageTotalPrice,
-                BeverageQuantity = (int)cartItem.BeverageQuantity,
+                var cartItemBeverageDTO = new CartItemBeverageDTO
+                {
+                    CartItemId = cartItem.CartItemId,
+                    UserId = cartItem.UserId,
+                    BeverageId = (int)cartItem.BeverageId,
+                    BeverageCost = (decimal)cartItem.BeverageCost,
+                    BeverageDiscount = (decimal)cartItem.BeverageDiscount,
+                    BeverageFinalPrice = (decimal)cartItem.BeverageFinalPrice,
+                    BeverageTotalPrice = (decimal)cartItem.BeverageTotalPrice,
+                    BeverageQuantity = (int)cartItem.BeverageQuantity,
+                    
+                };
 
-            });
+                return cartItemBeverageDTO;
+            }
 
-            return cartItemDTOs;
+            throw new InvalidOperationException("CartItem type is not recognized.");
         }
 
-        public Task<CartItemBeverageDTO> GetBeverageCartItemById(int CartItemId)
+
+        public async Task<int> DeleteByCartItemId(int cartItemId)
         {
-            throw new NotImplementedException();
+            // Fetch the existing cart item
+            var cartItem = await _cartItemRepository.Get(cartItemId);
+
+            if (cartItem == null)
+            {
+                throw new KeyNotFoundException("CartItem not found.");
+            }
+
+            // Fetch the associated cart
+            var cart = await _cartRepository.Get(cartItem.CartId);
+
+            if (cart == null)
+            {
+                throw new KeyNotFoundException("Cart not found.");
+            }
+
+            // Determine if the cart item is a pizza or beverage and update the total price accordingly
+            if (cartItem.PizzaId.HasValue)
+            {
+                cart.TotalPrice -= cartItem.PizzaFinalPrice;
+            }
+            else if (cartItem.BeverageId.HasValue)
+            {
+                cart.TotalPrice -= cartItem.BeverageFinalPrice;
+            }
+            else
+            {
+                throw new InvalidOperationException("CartItem type is not recognized.");
+            }
+
+            // Update the cart in the repository
+            await _cartRepository.Update(cart);
+
+            // Delete the cart item
+            await _cartItemRepository.DeleteByCartItemId(cartItemId);
+
+            // Prepare the appropriate DTO to return based on the item type
+            if (cartItem.PizzaId.HasValue)
+            {
+                var cartItemDTO = new CartItemPizzaDTO
+                {
+                    CartItemId = cartItem.CartItemId,
+                    UserId = cartItem.UserId,
+                    PizzaId = (int)cartItem.PizzaId,
+                    CrustId = (int)cartItem.CrustId,
+                    ToppingId = (int)cartItem.ToppingId,
+                    SizeId = (int)cartItem.SizeId,
+                    PizzaCost = (decimal)cartItem.PizzaCost,
+                    PizzaDiscount = (decimal)cartItem.PizzaDiscount,
+                    PizzaFinalPrice = (decimal)cartItem.PizzaFinalPrice,
+                    PizzaTotalPrice = (decimal)cartItem.PizzaTotalPrice,
+                    PizzaQuantity = cartItem.PizzaQuantity.Value,
+                };
+                return cartItemDTO.CartItemId;
+            }
+            else if (cartItem.BeverageId.HasValue)
+            {
+                var cartItemDTO = new CartItemBeverageDTO
+                {
+                    CartItemId = cartItem.CartItemId,
+                    UserId = cartItem.UserId,
+                    BeverageId = (int)cartItem.BeverageId,
+                    BeverageCost = (decimal)cartItem.BeverageCost,
+                    BeverageDiscount = (decimal)cartItem.BeverageDiscount,
+                    BeverageFinalPrice = (decimal)cartItem.BeverageFinalPrice,
+                    BeverageTotalPrice = (decimal)cartItem.BeverageTotalPrice,
+                    BeverageQuantity = (int)cartItem.BeverageQuantity,
+                };
+                return cartItemDTO.CartItemId;
+            }
+
+            throw new InvalidOperationException("CartItem type is not recognized.");
         }
 
-        public Task<CartItemBeverageDTO> DeleteBeverageByCartItemId(int cartItemId)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<int> AddBeverageCartItem(CartItemBeverageInputDTO cartItemInputDTO)
         {
+            // Find an existing cart for the user or create a new one
+            var cart = await _cartRepository.GetActiveCartByUserId(cartItemInputDTO.UserId);
+            if (cart == null)
+            {
+                cart = new Cart
+                {
+                    UserId = cartItemInputDTO.UserId,
+                    TotalPrice = 0m,
+                    IsCheckedOut = false
+                };
+                await _cartRepository.Add(cart);
+            }
+
+            // Retrieve the beverage details
+            var beverage = await _beverageRepository.GetBeverageByBeverageId(cartItemInputDTO.BeverageId);
+            var beverageCost = beverage.Cost;
+            var uploadDate = beverage.UploadDate;
+
+            // Calculate discount
+            var discount = 0m;
+            if (uploadDate >= DateTime.UtcNow.AddDays(-7))
+            {
+                discount = beverageCost * 0.05m; // 5% discount
+            }
+
+            // Calculate the final price for the beverage
+            var beverageFinalPrice = beverageCost - discount;
+            var beverageTotalPrice = 1 * beverageFinalPrice;
+
             // Map DTO to Entity
             var cartItem = new CartItem
             {
                 UserId = cartItemInputDTO.UserId,
                 BeverageId = cartItemInputDTO.BeverageId,
-
-                BeverageCost = cartItemInputDTO.BeverageCost,
-
-
-                BeverageQuantity = (int)cartItemInputDTO.BeverageQuantity,
-                BeverageTotalPrice = (decimal)(cartItemInputDTO.BeverageQuantity * (int)cartItemInputDTO.BeverageCost),
-
+                BeverageCost = beverageCost,
+                BeverageQuantity = 1,
+                BeverageTotalPrice = beverageTotalPrice,
+                CartId = cart.CartId,
+                BeverageDiscount = discount,
+                BeverageFinalPrice = beverageFinalPrice
             };
 
-            // Add to repository
+            // Add the CartItem to the repository
             await _cartItemRepository.Add(cartItem);
+
+            // Update the cart total price
+            cart.TotalPrice += cartItem.BeverageTotalPrice;
+            await _cartRepository.Update(cart);
 
             // Return the CartItemId
             return cartItem.CartItemId;
-
         }
 
-        public async Task<IEnumerable<CartItemBeverageDTO>> GetBeverageCartItemsByUserId(int userId)
-        {
-            var allCartItems = await GetAllBeverageCartItems();
-            var filteredCartItems = allCartItems.Where(cartItem => cartItem.UserId == userId);
-
-            if (!filteredCartItems.Any())
-            {
-                throw new EmptyException("No cart items found for the specified user");
-            }
-
-            return filteredCartItems;
-        }
 
         public async Task<int> UpdateCartItemQuantity(UpdateQuantityDTO cartItemQuantityUpdateDTO)
         {
@@ -258,13 +286,44 @@ namespace PizzaApp.Services
             {
                 throw new KeyNotFoundException("CartItem not found.");
             }
+            var cart = await _cartRepository.Get(cartItem.CartId);
 
-            // Update the quantity and total price
-            cartItem.PizzaQuantity = cartItemQuantityUpdateDTO.NewQuantity;
-            cartItem.PizzaTotalPrice = cartItem.PizzaQuantity * cartItem.PizzaFinalPrice;
+            if (cart == null)
+            {
+                throw new KeyNotFoundException("Cart not found.");
+            }
+            // Update the quantity and total price based on the item type
+            decimal oldTotalPrice;
+            decimal newTotalPrice;
+
+            // Update the quantity and total price based on the item type
+            if (cartItem.PizzaId.HasValue)
+            {
+                oldTotalPrice = (decimal)cartItem.PizzaTotalPrice;
+                cartItem.PizzaQuantity = cartItemQuantityUpdateDTO.NewQuantity;
+                cartItem.PizzaTotalPrice = cartItem.PizzaQuantity.Value * cartItem.PizzaFinalPrice;
+                newTotalPrice = (decimal)cartItem.PizzaTotalPrice;
+            }
+            else if (cartItem.BeverageId.HasValue)
+            {
+                oldTotalPrice = (decimal)cartItem.BeverageTotalPrice;
+                cartItem.BeverageQuantity = cartItemQuantityUpdateDTO.NewQuantity;
+                cartItem.BeverageTotalPrice = cartItem.BeverageQuantity * cartItem.BeverageFinalPrice;
+                newTotalPrice = (decimal)cartItem.BeverageTotalPrice;
+            }
+            else
+            {
+                throw new InvalidOperationException("CartItem type is not recognized.");
+            }
+
+            // Update the cart total price
+            cart.TotalPrice += (newTotalPrice - oldTotalPrice);
+
 
             // Save changes to repository
             await _cartItemRepository.Update(cartItem);
+            await _cartRepository.Update(cart);
+
 
             // Return the updated CartItemId
             return cartItem.CartItemId;

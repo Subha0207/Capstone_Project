@@ -64,21 +64,22 @@ namespace PizzaApp.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the pizza.");
             }
         }
-        //[HttpGet("cost{PizzaId}")]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        //public async Task<ActionResult<IEnumerable<CrustDTO>>> GetAllCrustCost(int PizzaId)
-        //{
-        //    try
-        //    {
-        //        var Crusts = await _crustService.GetAllCrustPriceByPizzaId(PizzaId);
-        //        return Ok(Crusts);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Log the exception
-        //        return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the crusts.");
-        //    }
-        //}
+
+        [HttpGet("cost{PizzaId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<CrustDTO>>> GetAllCrustCost(int PizzaId,int SizeId)
+        {
+            try
+            {
+                var Crusts = await _crustService.GetAllCrustPriceBySizeId(PizzaId,SizeId);
+                return Ok(Crusts);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the crusts.");
+            }
+        }
     }
 }

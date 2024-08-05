@@ -24,48 +24,38 @@ namespace PizzaApp.Services
             _sizeRepository = sizeRepository;
         }
 
-        public async Task<IEnumerable<CrustDTO>> GetAllCrustPriceByPizzaIdWithSize(int pizzaId, int selectedSizeId)
+        public async Task<IEnumerable<CrustDTO>> GetAllCrustPriceBySizeId(int PizzaId, int SizeId)
         {
-            // Get the cost of the selected size
-            var sizeCost = await GetSizeCostById(pizzaId, selectedSizeId);
+            var pizza = await _pizzaRepository.GetPizzaByPizzaId(PizzaId);
+          
 
-            if (sizeCost == 0)
-            {
-                // Handle the case where the selected size is not found
-                return Enumerable.Empty<CrustDTO>();
-            }
 
-            // Fetch all crusts
             var crusts = await _crustRepository.Get();
 
+
             var crustDTOs = new List<CrustDTO>();
+            var updatedCost = await _sizeService.GetCostBySizeIdAndPizzaId(PizzaId,SizeId);
+
 
             foreach (var crust in crusts)
             {
+
                 var crustDTO = new CrustDTO
                 {
+                    CrustId=crust.CrustId,
                     Name = crust.Name,
-                    Cost = sizeCost * crust.CrustMultiplier
+                    Cost = updatedCost * crust.CrustMultiplier
                 };
 
+                // Add the CrustDTO to the list
                 crustDTOs.Add(crustDTO);
             }
 
+            // Return the list of CrustDTOs
             return crustDTOs;
+
         }
 
-
-        public async Task<decimal> GetSizeCostById(int pizzaId, int selectedSizeId)
-        {
-            // Fetch all size prices for the given pizzaId
-            var sizeDTOs = await _sizeService.GetAllSizePriceBySizeId(pizzaId);
-
-            // Find the size with the matching SizeId
-            var selectedSize = sizeDTOs.FirstOrDefault(size => size.SizeId == selectedSizeId);
-
-            // Return the cost if the selected size is found, otherwise return 0
-            return selectedSize != null ? selectedSize.Cost : 0;
-        }
 
 
         public async Task<IEnumerable<Crust>> GetAllCrusts()

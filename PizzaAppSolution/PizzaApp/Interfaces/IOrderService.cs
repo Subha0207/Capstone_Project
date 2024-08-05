@@ -5,13 +5,13 @@ namespace PizzaApp.Interfaces
 {
     public interface IOrderService
     {
-        public Task<OrderDTO> AddOrder(OrderInputDTO orderInputDTO);
+        public Task<int> AddOrder(OrderInputDTO orderInputDTO);
 
-        public Task<OrderDTO> GetOrderById(int OrderId);
-        Task<IEnumerable<OrderDTO>> GetAllOrders();
+        public Task<OrderGetDTO> GetOrderById(int OrderId);
+        Task<IEnumerable<OrderGetDTO>> GetAllOrders();
 
-        Task<IEnumerable<OrderDTO>> GetOrdersByUserId(int userId);
+        Task<IEnumerable<OrderGetDTO>> GetOrdersByUserId(int userId);
 
-        public Task<OrderDTO> UpdateOrderStatus(OrderUpdateDTO orderUpdateDTO) ;
+        public Task<int> UpdateOrderStatus(OrderUpdateDTO orderUpdateDTO) ;
     }
 }

@@ -6,13 +6,16 @@ namespace PizzaApp.Models
     public class OrderInputDTO
     {
 
-        public string PaymentId { get; set; }
+        public int PaymentId { get; set; }
 
         public int CartId { get; set; }
 
 
         [Required]
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
+
+        public string Address { get; set; }
+        public string Phone { get; set; }
 
 
     }

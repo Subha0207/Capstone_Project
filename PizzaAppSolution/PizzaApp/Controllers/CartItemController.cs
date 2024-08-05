@@ -20,8 +20,11 @@ namespace PizzaApp.Controllers
         {
             _cartItemService = cartItemService;
         }
+
+
+
         [HttpPost("PizzaCartItem")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<int>> PostCartItem([FromBody] CartItemPizzaInputDTO cartItemInputDTO)
@@ -38,16 +41,11 @@ namespace PizzaApp.Controllers
 
             try
             {
-
                 int cartItemId = await _cartItemService.AddCartItem(cartItemInputDTO);
-
-
-                return CreatedAtAction(nameof(GetCartItemById), new { cartItemId = cartItemId }, cartItemId);
+                return Ok(cartItemId);
             }
             catch (Exception ex)
             {
-
-
                 var errorModel = new ErrorModel
                 {
                     ErrorCode = StatusCodes.Status500InternalServerError,
@@ -56,7 +54,38 @@ namespace PizzaApp.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, errorModel);
             }
         }
-        [HttpPatch("PizzaCartItem/Quantity")]
+        [HttpPost("BeverageCartItem")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<int>> PostBeverageCartItem([FromBody] CartItemBeverageInputDTO cartItemInputDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errorModel = new ErrorModel
+                {
+                    ErrorCode = StatusCodes.Status400BadRequest,
+                    ErrorMessage = "Invalid model state."
+                };
+                return BadRequest(errorModel);
+            }
+
+            try
+            {
+                int cartItemId = await _cartItemService.AddBeverageCartItem(cartItemInputDTO);
+                return Ok(cartItemId);  // Return OK status with the cart item ID
+            }
+            catch (Exception ex)
+            {
+                var errorModel = new ErrorModel
+                {
+                    ErrorCode = StatusCodes.Status500InternalServerError,
+                    ErrorMessage = "An error occurred while adding the cart item."
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, errorModel);
+            }
+        }
+        [HttpPatch("update/Quantity")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -97,65 +126,8 @@ namespace PizzaApp.Controllers
             }
         }
 
-        [HttpPost("BeverageCartItem")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<int>> PostBeverageCartItem([FromBody] CartItemBeverageInputDTO cartItemInputDTO)
-        {
-            if (!ModelState.IsValid)
-            {
-                var errorModel = new ErrorModel
-                {
-                    ErrorCode = StatusCodes.Status400BadRequest,
-                    ErrorMessage = "Invalid model state."
-                };
-                return BadRequest(errorModel);
-            }
-
-            try
-            {
-
-                int cartItemId = await _cartItemService.AddBeverageCartItem(cartItemInputDTO);
-
-
-                return CreatedAtAction(nameof(GetCartItemById), new { cartItemId = cartItemId }, cartItemId);
-            }
-            catch (Exception ex)
-            {
-
-
-                var errorModel = new ErrorModel
-                {
-                    ErrorCode = StatusCodes.Status500InternalServerError,
-                    ErrorMessage = "An error occurred while adding the cart item."
-                };
-                return StatusCode(StatusCodes.Status500InternalServerError, errorModel);
-            }
-        }
-
-        [HttpGet("allPizzas")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<CartItemPizzaDTO>>> GetAllCartItems()
-        {
-            try
-            {
-                var cartItems = await _cartItemService.GetAllCartItems();
-                return Ok(cartItems);
-            }
-            catch (EmptyException ex)
-            {
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                // Log the exception
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the cart items.");
-            }
-        }
-        [HttpGet("pizza{CartItemId}")]
+     
+        [HttpGet("{CartItemId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<CartItem>> GetCartItemById(int CartItemId)
@@ -181,18 +153,20 @@ namespace PizzaApp.Controllers
             }
         }
 
-        [HttpDelete("pizza{cartItemId}")]
+        [HttpDelete("{cartItemId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<CartItemPizzaDTO>> DeleteCartItemById(int cartItemId)
+        public async Task<ActionResult<object>> DeleteCartItemById(int cartItemId)
         {
             try
             {
                 var cartItemDTO = await _cartItemService.DeleteByCartItemId(cartItemId);
+
+                // Return the DTO directly
                 return Ok(cartItemDTO);
             }
-            catch (NotFoundException ex)
+            catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
             }
@@ -203,81 +177,7 @@ namespace PizzaApp.Controllers
             }
         }
 
-        [HttpGet("allPizzas{userId}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<CartItemPizzaDTO>>> GetCartItemsByUserId(int userId)
-        {
-            try
-            {
-                var cartItems = await _cartItemService.GetCartItemsByUserId(userId);
-
-                if (cartItems == null || !cartItems.Any())
-                {
-                    return NotFound("No cart items found for the specified user");
-                }
-                return Ok(cartItems);
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-               
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the cart items.");
-            }
-        }
-
-        [HttpGet("allBeverages")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<CartItemBeverageDTO>>> GetAllBeverageCartItems()
-        {
-            try
-            {
-                var cartItems = await _cartItemService.GetAllBeverageCartItems();
-                return Ok(cartItems);
-            }
-            catch (EmptyException ex)
-            {
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                // Log the exception
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the cart items.");
-            }
-        }
-        [HttpGet("allBeverages{userId}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<CartItemBeverageDTO>>> GetBeverageCartItemsByUserId(int userId)
-        {
-            try
-            {
-                var cartItems = await _cartItemService.GetBeverageCartItemsByUserId(userId);
-
-                if (cartItems == null || !cartItems.Any())
-                {
-                    return NotFound("No cart items found for the specified user");
-                }
-                return Ok(cartItems);
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the cart items.");
-            }
-        }
-
+      
 
     }
 }

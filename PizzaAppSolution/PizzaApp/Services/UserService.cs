@@ -24,13 +24,20 @@ namespace PizzaApp.Services
                 Email=email,
                 UserName=userName,
                 Role=UserRole.User,
-                
-        
-
             };
             await _userRepository.Add(user);
             return user;
          
+        }
+
+        public async Task<int> GetUserId(string email)
+        {
+            var user = await _userRepository.GetUserByEmail(email);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+            return (int)user.UserId;
         }
 
         public async Task<int> GetUserRole(string email)

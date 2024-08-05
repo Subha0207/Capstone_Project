@@ -24,7 +24,7 @@ namespace PizzaApp.Contexts
         public DbSet<Topping> Toppings { get; set; }
         public DbSet<CartItem> CartItem { get; set; }
         public DbSet<Crust> Crusts { get; set; }
-        public DbSet<Size> Sizes { get; set; } // Add DbSet for Size
+        public DbSet<Size> Sizes { get; set; } 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,7 +40,25 @@ namespace PizzaApp.Contexts
             modelBuilder.Entity<Crust>().HasKey(cr => cr.CrustId);
             modelBuilder.Entity<Size>().HasKey(s => s.SizeId);
             modelBuilder.Entity<Topping>().HasKey(t => t.ToppingId);
-  
+            modelBuilder.Entity<Order>()
+                     .HasOne(o => o.Payment)
+                     .WithMany()
+                     .HasForeignKey(o => o.PaymentId)
+                     .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Cart)
+                .WithMany()
+                .HasForeignKey(o => o.CartId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.User)
+                .WithMany()
+                .HasForeignKey(o => o.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
             var currentDate = DateTime.Now;
             var oneWeekAgo = currentDate.AddDays(-7);
 
@@ -54,7 +72,7 @@ namespace PizzaApp.Contexts
                     Cost = 30m,
                     IsBestSeller = true,
                     Image = "https://images.unsplash.com/photo-1554866585-cd94860890b7?q=80&w=1965&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-                    UploadDate = new DateTime(2024, 7, 26)
+                    UploadDate = new DateTime(2024, 7, 31)
                 },
                 new Beverage
                 {

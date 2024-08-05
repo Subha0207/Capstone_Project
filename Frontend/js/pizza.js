@@ -1,3 +1,4 @@
+
 let allPizzas = [];
 
 async function fetchVegPizzas() {
@@ -55,12 +56,76 @@ function filterItems() {
 
     displayItems(filteredPizzas, 'pizza');
 }
+function finalAddToCart() {
+    // Get the details from local storage
+    const userId = localStorage.getItem('userId');
+    const pizzaId = localStorage.getItem('pizzaId');
+    const crustId = localStorage.getItem('selectedCrustId');
+    const toppingId = localStorage.getItem('selectedToppingId');
+    const sizeId = localStorage.getItem('selectedSizeId');
+
+    // Create the payload
+    const payload = {
+        userId: parseInt(userId, 10),
+        pizzaId: parseInt(pizzaId, 10),
+        crustId: parseInt(crustId, 10),
+        toppingId: parseInt(toppingId, 10),
+        sizeId: parseInt(sizeId, 10)
+    };
+
+    // Make the POST request
+    fetch('https://localhost:7028/api/CartItem/PizzaCartItem', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Response from server:', data);
+            if (Number.isInteger(data)) {
+                // Set a flag in local storage to show a popup on the original page
+                localStorage.setItem('cartAddSuccess', 'true');
+                closeStepper();  
+                showPopupMessage('Added to add item to cart.', true);
+              
+
+            } else {
+                showPopupMessage('Failed to add item to cart.', true);
+            }
+        })
+        .catch((error) => {
+            console.error('Error adding item to cart:', error);
+            showPopupMessage('Error adding item to cart.', true);
+        });
+}
+document.addEventListener('DOMContentLoaded', () => {
+    // Check if the cart add success flag is set
+    if (localStorage.getItem('cartAddSuccess') === 'true') {
+        // Show success popup message
+        showPopupMessage('Item added to cart successfully!');
+        // Remove the flag from local storage
+        localStorage.removeItem('cartAddSuccess');
+    }
+});
+function showPopupMessage(message, isError = false) {
+    const popupMessage = document.getElementById('popupMessage');
+    popupMessage.textContent = message;
+    popupMessage.classList.toggle('error', isError);
+    popupMessage.style.display = 'block';
+
+    setTimeout(() => {
+        popupMessage.style.display = 'none';
+    }, 3000);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     fetch('https://localhost:7028/api/Topping')
         .then(response => response.json())
         .then(toppings => {
             const toppingOptionsContainer = document.getElementById('toppingOptions');
-            
+
             toppings.forEach(topping => {
                 const label = document.createElement('label');
                 label.classList.add('topping-item');
@@ -69,6 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 input.type = 'radio';
                 input.name = 'topping';
                 input.value = topping.name;
+                input.dataset.id = topping.toppingId;// Include the topping ID in a data attribute
                 input.dataset.cost = topping.cost;
 
                 const spanName = document.createElement('span');
@@ -85,11 +151,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 toppingOptionsContainer.appendChild(label);
             });
+
+            // Add event listener to handle topping selection
+            toppingOptionsContainer.addEventListener('change', event => {
+                if (event.target.name === 'topping') {
+                    const selectedToppingId = event.target.dataset.id;
+                    const selectedToppingName = event.target.value;
+
+                    // Store the selected topping ID and name in local storage
+                    localStorage.setItem('selectedToppingId', selectedToppingId);
+                    localStorage.setItem('selectedToppingName', selectedToppingName);
+
+                    // Print the selected topping ID and name in the console
+                    console.log(`Selected Topping ID: ${selectedToppingId}`);
+                    console.log(`Selected Topping Name: ${selectedToppingName}`);
+                }
+            });
         })
         .catch(error => console.error('Error fetching toppings:', error));
 });
 let currentPizzaCost = 0;
-
 async function openStepper(pizza) {
     document.getElementById('stepper-popup').classList.remove('hidden');
     document.querySelector('.step-1').classList.add('active');
@@ -103,41 +184,103 @@ async function openStepper(pizza) {
         const label = document.createElement('label');
         label.className = 'radio-label';
         label.innerHTML = `
-            <input type="radio" name="size" value="${size.sizeId}" data-name="${size.name}" data-cost="${size.cost.toFixed(2)}">
-            <span class="size-name">${size.name}</span>
-            <span class="price" id="price-${size.name.toLowerCase()}">₹${size.cost.toFixed(2)}</span>
-        `;
+    <input type="radio" name="size" value="${size.sizeId}" data-name="${size.name}" data-cost="${size.cost.toFixed(2)}">
+    <span class="size-name">${size.name}</span>
+    <span class="price" id="price-${size.name.toLowerCase()}">₹${size.cost.toFixed(2)}</span>
+`;
         sizeOptionsContainer.appendChild(label);
     });
 
     // Add event listener to handle size selection
     sizeOptionsContainer.addEventListener('change', event => {
         if (event.target.name === 'size') {
-          
-            const selectedSizeName = event.target.dataset.name;
-            var selectedSizeCost = event.target.dataset.cost;
+            const selectedSizeId = event.target.value;
+            const selectedSizeName = event.target.getAttribute('data-name');
 
-       
+            // Store the selected size ID in local storage
+            localStorage.setItem('selectedSizeId', selectedSizeId);
+
+            // Print the selected size ID and name in the console
+            console.log(`Selected Size ID: ${selectedSizeId}`);
             console.log(`Selected Size Name: ${selectedSizeName}`);
-            console.log(`Selected Size Cost: ₹${selectedSizeCost}`);
+            localStorage.setItem('selectedSize', selectedSizeName);
+        }
+    });
+
+    // Store pizzaId in local storage
+    localStorage.setItem('pizzaId', pizza.pizzaId);
+}
+async function loadCrustOptions() {
+    const pizzaId = localStorage.getItem('pizzaId');
+    const sizeId = localStorage.getItem('selectedSizeId');
+
+    if (!pizzaId || !sizeId) {
+        console.error('Pizza ID or Size ID is not set in local storage.');
+        return;
+    }
+
+    const crustCosts = await fetchCrustCosts(pizzaId, sizeId);
+
+    const crustOptionsContainer = document.getElementById('crust-options');
+    crustOptionsContainer.innerHTML = '';
+
+    crustCosts.forEach(crust => {
+        console.log(crust);
+        const label = document.createElement('label');
+        label.className = 'radio-label';
+        label.innerHTML = `
+    <input type="radio" name="crust" value="${crust.crustId}" data-name="${crust.name}" data-cost="${crust.cost.toFixed(2)}">
+    <span class="crust-name">${crust.name}</span>
+    <span class="price" id="price-${crust.name.toLowerCase()}">₹${crust.cost.toFixed(2)}</span>
+`;
+        crustOptionsContainer.appendChild(label);
+    });
+
+    // Add event listener to handle crust selection and store the selected crust ID
+    crustOptionsContainer.addEventListener('change', event => {
+        if (event.target.name === 'crust') {
+            const selectedCrustId = event.target.value;
+            const selectedCrustName = event.target.dataset.name;
+            const selectedCrustCost = event.target.dataset.cost;
+
+            // Store the selected crust ID, name, and cost in local storage
+            localStorage.setItem('selectedCrustId', selectedCrustId);
+            localStorage.setItem('selectedCrustName', selectedCrustName);
+
+
+
         }
     });
 }
+
 
 function closeStepper() {
     document.getElementById('stepper-popup').classList.add('hidden');
     document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
 }
 
-function nextStep(step) {
+async function nextStep(step) {
     document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
     document.querySelector(`.step-${step}`).classList.add('active');
 
-    if (step === 3) {
-        const chosenSize = document.querySelector('input[name="size"]:checked').value;
-        const chosenCrust = document.querySelector('input[name="crust"]:checked').value;
-        document.getElementById('chosen-size').textContent = chosenSize;
-        document.getElementById('chosen-crust').textContent = chosenCrust;
+    if (step === 2) {
+        await loadCrustOptions(); // Load crust options when moving to step 2
+    } else if (step === 3) {
+        const chosenSizeId = document.querySelector('input[name="size"]:checked').value;
+        const chosenCrustId = document.querySelector('input[name="crust"]:checked').value;
+
+        const chosenSizeName = localStorage.getItem('selectedSize');
+        const chosenCrustName = localStorage.getItem('selectedCrustName');
+
+        const selectedCrust = document.querySelector('input[name="crust"]:checked');
+        console.log(selectedCrust);
+        if (selectedCrust) {
+            const selectedCrustCost = selectedCrust.dataset.cost;
+            // You can update the price display or perform other actions based on the selected crust
+            console.log(`Selected Crust Cost: ₹${selectedCrustCost}`);
+        }
+        document.getElementById('chosen-size').textContent = chosenSizeName;
+        document.getElementById('chosen-crust').textContent = chosenCrustName;
     } else if (step === 4) {
         const chosenToppings = Array.from(document.querySelectorAll('input[name="topping"]:checked'))
             .map(checkbox => checkbox.value)
@@ -146,8 +289,9 @@ function nextStep(step) {
     }
 }
 function addToCart(pizza) {
-    var pizzaId=pizza.pizzaId;
+    var pizzaId = pizza.pizzaId;
     console.log(`Added to cart: ${pizza.pizzaId}`);
+    localStorage.setItem('pizzaId', pizza.pizzaId);
     openStepper(pizza);
 }
 async function fetchPizzaSizes(pizzaId) {
@@ -163,52 +307,27 @@ async function fetchPizzaSizes(pizzaId) {
     }
 }
 
+async function fetchCrustCosts(pizzaId, sizeId) {
+    try {
 
-
-
-function finalAddToCart() {
-    const size = document.querySelector('input[name="size"]:checked').value;
-    const crust = document.querySelector('input[name="crust"]:checked').value;
-    const toppings = Array.from(document.querySelectorAll('input[name="topping"]:checked'))
-        .map(checkbox => checkbox.value)
-        .join(', ');
-
-    let multiplier = 1;
-    if (size === 'Medium') {
-        multiplier = 1.5;
-    } else if (size === 'Large') {
-        multiplier = 1.8;
+        const response = await fetch(`https://localhost:7028/api/Crust/cost${pizzaId}?SizeId=${sizeId}`);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const crustCosts = await response.json();
+        return crustCosts;
+    } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
     }
-
-    const basePrice = currentPizzaCost * multiplier;
-
-    let crustMultiplier = 0;
-    if (crust === 'Thick') {
-        crustMultiplier = 0.15;
-    } else if (crust === 'Cheese') {
-        crustMultiplier = 0.30;
-    }
-
-    const crustAdjustedPrice = basePrice * (1 + crustMultiplier);
-
-    // Calculate total topping cost
-    const toppingInputs = document.querySelectorAll('input[name="topping"]:checked');
-    let toppingCost = 0;
-    toppingInputs.forEach(input => {
-        toppingCost += parseFloat(input.getAttribute('data-cost'));
-    });
-
-    const finalPrice = crustAdjustedPrice + toppingCost;
-
-    console.log(`Added to cart: Size - ${size}, Crust - ${crust}, Toppings - ${toppings}, Price - ₹${finalPrice.toFixed(2)}`);
-    closeStepper();
 }
+
+
 
 
 
 function displayItems(items, type) {
     const container = type === 'pizza' ? document.getElementById('pizzaList') : document.getElementById('beverageContainer');
-    container.innerHTML = ''; 
+    container.innerHTML = '';
 
     const currentDate = new Date();
 
@@ -249,6 +368,12 @@ function displayItems(items, type) {
             newBadge.textContent = 'New';
             newBadge.classList.add('new');
             badgeContainer.appendChild(newBadge);
+
+            // Create debug banner
+            const debugBanner = document.createElement('div');
+            debugBanner.className = 'debug-banner';
+            debugBanner.textContent = '5% Discount';
+            card.appendChild(debugBanner);
         }
 
         // Adding veg/non-veg badge
@@ -260,7 +385,7 @@ function displayItems(items, type) {
         const button = document.createElement('button');
         button.textContent = 'Add';
         button.classList.add('button');
-        button.onclick = () => addToCart(item); 
+        button.onclick = () => addToCart(item);
 
         const name = document.createElement('h2');
         name.classList.add('title');
@@ -288,5 +413,6 @@ function displayItems(items, type) {
         container.appendChild(card);
     }
 }
+
 
 fetchAllPizzas();

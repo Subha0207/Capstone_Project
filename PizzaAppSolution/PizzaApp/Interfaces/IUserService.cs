@@ -7,5 +7,7 @@ namespace PizzaApp.Interfaces
     {
         public Task<User> CreateUser(string email, string userName);
         public Task<int> GetUserRole(string email);
+
+        public  Task<int> GetUserId(string email);
     }
 }

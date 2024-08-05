@@ -60,5 +60,19 @@ namespace PizzaApp.Controllers
                 return NotFound(new { message = ex.Message });
             }
         }
+
+        [HttpGet("GetUserId")]
+        public async Task<IActionResult> GetUserId(string email)
+        {
+            try
+            {
+                int userId = await _userService.GetUserId(email);
+                return Ok(userId);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
     }
 }

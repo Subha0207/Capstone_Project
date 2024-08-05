@@ -19,7 +19,17 @@
     padding: 16px;
     position: relative;
 }
-
+.debug-banner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color:#69e2ff;
+    color: black;
+    padding: 5px 10px;
+    font-size: 14px;
+    font-weight: bold;
+    border-bottom-left-radius: 5px;
+}
 .beverage-content {
     flex-grow: 1;
 }
@@ -53,7 +63,7 @@
     height: 200px;
     width: 150px;
     position: relative;
-    margin-right: 20px;
+    margin: 20px;
  
 }
 
@@ -103,4 +113,20 @@
 
 .beverage-button:hover {
     background-color: #218838;
+}
+.popup-message {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 5px;
+    z-index: 1000;
+}
+
+.popup-message.error {
+    background-color: #f44336;
 }

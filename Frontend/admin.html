@@ -1,104 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabbed Iframes</title>
+    <title>Admin</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
             margin: 0;
+            background-color: white;
+            overflow: hidden;
+            /* Prevent scrollbars */
         }
+
         .app-bar {
+            flex-shrink: 0;
+            width: 100%;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #333;
-            color: #fff;
-            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .app-bar h1 {
             margin: 0;
             font-size: 24px;
         }
+
         .app-bar button {
-            background-color: #f44336;
+            background-color: white;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            width: 70%;
+            box-sizing: border-box;
+            margin: auto;
+        }
+
+        .order-card {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-card .details {
+            flex: 1;
+        }
+
+        .order-card .status {
+            display: flex;
+            align-items: center;
+        }
+
+        .order-card .status button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .order-card .status button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .radio-group {
+            margin: 20px 0;
+        }
+
+        .radio-group label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .radio-group input {
+            margin-right: 10px;
+        }
+
+        #updateStatusBtn {
+            background-color: #007bff;
             color: white;
             border: none;
             padding: 10px 20px;
             cursor: pointer;
-        }
-        .app-bar button:hover {
-            background-color: #d32f2f;
-        }
-        .tabs {
-            display: flex;
-            width: auto;
-            justify-content: center;
-            background-color: #f1f1f1;
-            border-bottom: 1px solid #ccc;
-        }
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
+            border-radius: 4px;
             transition: background-color 0.3s;
         }
-        .tab:not(.active):hover {
-            background-color: #ddd;
-        }
-        .tab.active {
-            background-color: red;
-            border: 1px solid #ccc;
-            border-bottom: none;
-           
-        }
-        .iframe-container {
-            height: calc(100vh - 78px); /* Adjust height based on app-bar and tabs */
-        }
-        .iframe-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
     </style>
-    <script>
-        function showTab(tabIndex) {
-            var iframes = document.querySelectorAll('.iframe-container iframe');
-            var tabs = document.querySelectorAll('.tab');
-            iframes.forEach((iframe, index) => {
-                iframe.style.display = index === tabIndex ? 'block' : 'none';
-            });
-            tabs.forEach((tab, index) => {
-                tab.classList.toggle('active', index === tabIndex);
-            });
-        }
-    </script>
 </head>
-<body>
 
+<body>
     <div class="app-bar">
         <h1>Admin Home</h1>
         <button onclick="logout()">Logout</button>
     </div>
 
-    <div class="tabs">
-        <div class="tab active" onclick="showTab(0)">Add Pizza</div>
-        <div class="tab" onclick="showTab(1)">Add Beverage</div>
-        <div class="tab" onclick="showTab(2)">Manage Orders</div>
+    <div class="container" id="orderContainer">
+        <!-- Order cards will be injected here -->
     </div>
 
-    <div class="iframe-container">
-        <iframe src="add_pizza.html" style="display: block;"></iframe>
-        <iframe src="add_beverage.html" style="display: none;"></iframe>
-        <iframe src="manage_order.html" style="display: none;"></iframe>
+    <!-- Modal -->
+    <div id="statusModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Update Order Status</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="radio-group">
+                    <label><input type="radio" name="status" value="0" checked> OrderPlaced</label>
+                    <label><input type="radio" name="status" value="1"> PizzaBaked</label>
+                    <label><input type="radio" name="status" value="2"> OutForDelivery</label>
+                    <label><input type="radio" name="status" value="3"> Delivered</label>
+                </div>
+                <button id="updateStatusBtn">Update Status</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        function logout() {
-            // Implement your logout functionality here
-            alert("Logging out...");
-        }
-    </script>
+        let currentOrderId = null;
 
+        async function fetchOrders() {
+            try {
+                const response = await fetch('https://localhost:7028/api/Order');
+                if (!response.ok) throw new Error('Network response was not ok.');
+                const orders = await response.json();
+                displayOrders(orders);
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        }
+
+        function displayOrders(orders) {
+            const container = document.getElementById('orderContainer');
+            container.innerHTML = ''; // Clear any existing content
+
+            orders.forEach(order => {
+                const card = document.createElement('div');
+                card.className = 'order-card';
+
+                card.innerHTML = `
+                    <div class="details">
+                        <strong>Order ID:</strong> ${order.orderId}<br>
+                        <strong>Payment ID:</strong> ${order.paymentId}<br>
+                        <strong>Cart ID:</strong> ${order.cartId}<br>
+                        <strong>User ID:</strong> ${order.userId}<br>
+                        <strong>Order Date:</strong> ${new Date(order.orderDate).toLocaleDateString()}
+                    </div>
+                    <div class="status">
+                        <span>Order Status: ${order.status}</span>
+                        <button onclick="openEditModal(${order.orderId})">Edit</button>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function openEditModal(orderId) {
+            currentOrderId = orderId;
+            document.getElementById('statusModal').style.display = 'block';
+        }
+
+        function closeEditModal() {
+            document.getElementById('statusModal').style.display = 'none';
+        }
+
+        document.querySelector('.close').onclick = closeEditModal;
+
+        document.getElementById('updateStatusBtn').onclick = async function () {
+            const selectedStatus = document.querySelector('input[name="status"]:checked').value;
+            try {
+                const response = await fetch('https://localhost:7028/api/Order/Status', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: parseInt(selectedStatus), orderId: currentOrderId })
+                });
+                if (!response.ok) throw new Error('Network response was not ok.');
+                alert('Order status updated successfully.');
+                closeEditModal();
+                fetchOrders(); // Refresh the order list
+            } catch (error) {
+                console.error('Fetch error:', error);
+                alert('Failed to update order status.');
+            }
+        }
+
+        // Fetch orders on page load
+        fetchOrders();
+        function logout() {
+             // Remove the previous path from the browser history
+             window.history.replaceState(null, null, 'login.html');
+            // Redirect to the login page
+            window.location.href = "login.html";
+       
+        }
+
+    </script>
 </body>
+
 </html>

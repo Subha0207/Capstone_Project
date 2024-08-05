@@ -14,19 +14,18 @@ namespace PizzaApp.Models
 
         public int? PizzaId { get; set; }
         public Pizza Pizza { get; set; }
-        public int CrustId { get; set; }
+        public int? CrustId { get; set; }
         public Crust Crust { get; set; }
-        public int SizeId { get; set; }
+        public int? SizeId { get; set; }
         public Size Size { get; set; }
-        public int ToppingId { get; set; }
+        public int? ToppingId { get; set; }
         public Topping Topping { get; set; }
         public decimal? PizzaDiscount { get; set; }
         public decimal? PizzaFinalPrice { get; set; }
         public decimal? PizzaCost { get; set; }
         public int? BeverageId { get; set; }
 
-        [Required]
-        [Range(0, double.MaxValue, ErrorMessage = "TotalPrice must be a positive value.")]
+   
         public decimal? PizzaTotalPrice { get; set; }
 
         [Range(0, int.MaxValue, ErrorMessage = "PizzaQuantity must be a positive value.")]
@@ -38,6 +37,8 @@ namespace PizzaApp.Models
         public decimal? BeverageDiscount { get; set; }
         public decimal? BeverageFinalPrice { get; set; }
         public decimal? BeverageTotalPrice { get; set; }
+
+        public bool IsCheckedout { get; set; }
         public int CartId { get; set; }
         [ForeignKey("CartId")]
         public Cart Cart { get; set; }
@@ -46,7 +47,8 @@ namespace PizzaApp.Models
         {
             PizzaDiscount = 0m;
             PizzaQuantity = 1;
-   
-        }
+            PizzaTotalPrice = 0;
+
+    }
     }
 }

@@ -2,11 +2,10 @@
 
 namespace PizzaApp.Models.DTOs
 {
-    public class CartItemBeverageDTO
+
+    public class CartItemBeverageDTO : ICartItemDTO
     {
         public int CartItemId { get; set; }
-
-
         public int UserId { get; set; }
         public int BeverageId { get; set; }
         [Range(0, int.MaxValue, ErrorMessage = "BeverageQuantity must be a positive value.")]
@@ -15,5 +14,7 @@ namespace PizzaApp.Models.DTOs
         public decimal BeverageDiscount { get; set; }
         public decimal BeverageFinalPrice { get; set; }
         public decimal BeverageTotalPrice { get; set; }
+        public decimal TotalPrice => BeverageTotalPrice;
     }
+   
 }

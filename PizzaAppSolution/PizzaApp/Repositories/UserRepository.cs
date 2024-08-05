@@ -36,23 +36,14 @@ namespace PizzaApp.Repositories
 
         public async Task<User> GetUserByEmail(string email)
         {
-            var userDto = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-            if (userDto == null)
-            {
-                throw new NotFoundException("User not found");
-            }
-
-            // Map UserDTO to User
-            var user = new User
-            {
-                UserId = userDto.UserId,
-                UserName = userDto.UserName,
-                Email = userDto.Email,
-               
-                Role = userDto.Role
-            };
-
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             return user;
+        }
+
+        public async Task<int> GetUserIdByEmail(string email)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return user.UserId;
         }
 
     }

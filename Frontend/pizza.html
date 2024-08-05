@@ -32,9 +32,7 @@
     </div>
     <div class="step step-2">
         <h3>Choose Crust Type</h3>
-        <label class="radio-label"><input type="radio" name="crust" value="Thin" onchange="updatePrice()"> <span class="crust-name">Thin Crust</span> <span id="price-thin"></span></label>
-        <label class="radio-label"><input type="radio" name="crust" value="Thick" onchange="updatePrice()"> <span class="crust-name">Thick Crust</span> <span id="price-thick"></span></label>
-        <label class="radio-label"><input type="radio" name="crust" value="Cheese" onchange="updatePrice()"> <span class="crust-name">Cheese Crust</span> <span id="price-cheese"></span></label>
+        <div id="crust-options"></div>
        
         <div class="stepper-buttons">
             <button onclick="nextStep(1)">Back</button>
@@ -63,7 +61,7 @@
         </div>
     </div>
 </div>
-
+<div id="popupMessage"></div>
 <script src="/js/pizza.js"></script>
 </body>
 </html>

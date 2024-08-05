@@ -60,22 +60,6 @@ namespace PizzaApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Payments",
-                columns: table => new
-                {
-                    PaymentId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CartId = table.Column<int>(type: "int", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Method = table.Column<int>(type: "int", nullable: false),
-                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Payments", x => x.PaymentId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Pizzas",
                 columns: table => new
                 {
@@ -125,21 +109,6 @@ namespace PizzaApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserDTO",
-                columns: table => new
-                {
-                    UserId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Role = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserDTO", x => x.UserId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -176,6 +145,7 @@ namespace PizzaApp.Migrations
                     BeverageDiscount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     BeverageFinalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     BeverageTotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    IsCheckedout = table.Column<bool>(type: "bit", nullable: false),
                     CartId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -213,16 +183,46 @@ namespace PizzaApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Payments",
+                columns: table => new
+                {
+                    PaymentId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    CartId = table.Column<int>(type: "int", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Method = table.Column<int>(type: "int", nullable: false),
+                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Payments", x => x.PaymentId);
+                    table.ForeignKey(
+                        name: "FK_Payments_Carts_CartId",
+                        column: x => x.CartId,
+                        principalTable: "Carts",
+                        principalColumn: "CartId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Payments_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Orders",
                 columns: table => new
                 {
                     OrderId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    PaymentId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PaymentId1 = table.Column<int>(type: "int", nullable: false),
+                    PaymentId = table.Column<int>(type: "int", nullable: false),
                     CartId = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -233,19 +233,19 @@ namespace PizzaApp.Migrations
                         column: x => x.CartId,
                         principalTable: "Carts",
                         principalColumn: "CartId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Orders_Payments_PaymentId1",
-                        column: x => x.PaymentId1,
+                        name: "FK_Orders_Payments_PaymentId",
+                        column: x => x.PaymentId,
                         principalTable: "Payments",
                         principalColumn: "PaymentId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Orders_UserDTO_UserId",
+                        name: "FK_Orders_Users_UserId",
                         column: x => x.UserId,
-                        principalTable: "UserDTO",
+                        principalTable: "Users",
                         principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.InsertData(
@@ -253,7 +253,7 @@ namespace PizzaApp.Migrations
                 columns: new[] { "BeverageId", "Cost", "Description", "Image", "IsAvailable", "IsBestSeller", "Name", "UploadDate", "Volume" },
                 values: new object[,]
                 {
-                    { 1, 30m, "A classic soft drink.", "https://images.unsplash.com/photo-1554866585-cd94860890b7?q=80&w=1965&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", false, true, "Coca Cola", new DateTime(2024, 7, 26, 0, 0, 0, 0, DateTimeKind.Unspecified), "200ml" },
+                    { 1, 30m, "A classic soft drink.", "https://images.unsplash.com/photo-1554866585-cd94860890b7?q=80&w=1965&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", false, true, "Coca Cola", new DateTime(2024, 7, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), "200ml" },
                     { 2, 19m, "Popular cola drink.", "https://images.unsplash.com/photo-1553456558-aff63285bdd1?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", false, false, "Pepsi", new DateTime(2024, 7, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), "100ml" },
                     { 3, 29m, "Refreshing lemon-lime soda.", "https://images.unsplash.com/photo-1690988109041-458628590a9e?q=80&w=1776&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", false, false, "Sprite", new DateTime(2024, 7, 24, 0, 0, 0, 0, DateTimeKind.Unspecified), "200ml" },
                     { 4, 39m, "Fruity orange soda.", "https://media.istockphoto.com/id/509533066/photo/fanta-orange-can.jpg?s=612x612&w=0&k=20&c=sbii6ppPvyuny-v0mx9xizy0QppblYH3sEvPLBr31tA=", false, true, "Fanta", new DateTime(2024, 7, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "500ml" },
@@ -275,11 +275,11 @@ namespace PizzaApp.Migrations
                 columns: new[] { "PizzaId", "Cost", "Description", "Image", "IsAvailable", "IsBestSeller", "IsVeg", "Name", "UploadDate" },
                 values: new object[,]
                 {
-                    { 1, 199m, "Classic Margherita pizza with fresh mozzarella and basil.", "https://images.unsplash.com/photo-1544982503-9f984c14501a?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", true, true, true, "Margherita", new DateTime(2024, 8, 1, 21, 1, 13, 116, DateTimeKind.Local).AddTicks(200) },
-                    { 2, 209m, "Pepperoni pizza with a crispy crust and rich tomato sauce.", "https://plus.unsplash.com/premium_photo-1661762555601-47d088a26b50?q=80&w=1792&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", true, true, false, "Pepperoni", new DateTime(2024, 7, 19, 21, 1, 13, 116, DateTimeKind.Local).AddTicks(200) },
-                    { 3, 149m, "Loaded with fresh vegetables and a savory sauce.", "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", true, false, true, "Vegetarian Supreme", new DateTime(2024, 7, 15, 21, 1, 13, 116, DateTimeKind.Local).AddTicks(200) },
-                    { 4, 299m, "Grilled chicken with BBQ sauce and red onions.", "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?q=80&w=1776&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", true, false, false, "BBQ Chicken", new DateTime(2024, 7, 10, 21, 1, 13, 116, DateTimeKind.Local).AddTicks(200) },
-                    { 5, 279m, "Sweet pineapple and ham with a cheesy base.", "https://media.istockphoto.com/id/1442417585/photo/person-getting-a-piece-of-cheesy-pepperoni-pizza.jpg?s=1024x1024&w=is&k=20&c=faq73viCFGvfpKxcBuHcOI8kyT99B-p-jScipke-VuQ=", true, false, false, "Hawaiian", new DateTime(2024, 7, 15, 21, 1, 13, 116, DateTimeKind.Local).AddTicks(200) }
+                    { 1, 199m, "Classic Margherita pizza with fresh mozzarella and basil.", "https://images.unsplash.com/photo-1544982503-9f984c14501a?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", true, true, true, "Margherita", new DateTime(2024, 8, 3, 13, 54, 56, 778, DateTimeKind.Local).AddTicks(5535) },
+                    { 2, 209m, "Pepperoni pizza with a crispy crust and rich tomato sauce.", "https://plus.unsplash.com/premium_photo-1661762555601-47d088a26b50?q=80&w=1792&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", true, true, false, "Pepperoni", new DateTime(2024, 7, 21, 13, 54, 56, 778, DateTimeKind.Local).AddTicks(5535) },
+                    { 3, 149m, "Loaded with fresh vegetables and a savory sauce.", "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", true, false, true, "Vegetarian Supreme", new DateTime(2024, 7, 17, 13, 54, 56, 778, DateTimeKind.Local).AddTicks(5535) },
+                    { 4, 299m, "Grilled chicken with BBQ sauce and red onions.", "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?q=80&w=1776&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", true, false, false, "BBQ Chicken", new DateTime(2024, 7, 12, 13, 54, 56, 778, DateTimeKind.Local).AddTicks(5535) },
+                    { 5, 279m, "Sweet pineapple and ham with a cheesy base.", "https://media.istockphoto.com/id/1442417585/photo/person-getting-a-piece-of-cheesy-pepperoni-pizza.jpg?s=1024x1024&w=is&k=20&c=faq73viCFGvfpKxcBuHcOI8kyT99B-p-jScipke-VuQ=", true, false, false, "Hawaiian", new DateTime(2024, 7, 17, 13, 54, 56, 778, DateTimeKind.Local).AddTicks(5535) }
                 });
 
             migrationBuilder.InsertData(
@@ -297,9 +297,9 @@ namespace PizzaApp.Migrations
                 columns: new[] { "ToppingId", "Cost", "Name" },
                 values: new object[,]
                 {
-                    { 2, 29m, 1 },
-                    { 3, 15m, 2 },
-                    { 4, 20m, 3 }
+                    { 1, 29m, 1 },
+                    { 2, 15m, 2 },
+                    { 3, 20m, 3 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -333,13 +333,23 @@ namespace PizzaApp.Migrations
                 column: "CartId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Orders_PaymentId1",
+                name: "IX_Orders_PaymentId",
                 table: "Orders",
-                column: "PaymentId1");
+                column: "PaymentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_UserId",
                 table: "Orders",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_CartId",
+                table: "Payments",
+                column: "CartId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_UserId",
+                table: "Payments",
                 column: "UserId");
         }
 
@@ -355,9 +365,6 @@ namespace PizzaApp.Migrations
                 name: "Orders");
 
             migrationBuilder.DropTable(
-                name: "Users");
-
-            migrationBuilder.DropTable(
                 name: "Crusts");
 
             migrationBuilder.DropTable(
@@ -370,13 +377,13 @@ namespace PizzaApp.Migrations
                 name: "Toppings");
 
             migrationBuilder.DropTable(
-                name: "Carts");
-
-            migrationBuilder.DropTable(
                 name: "Payments");
 
             migrationBuilder.DropTable(
-                name: "UserDTO");
+                name: "Carts");
+
+            migrationBuilder.DropTable(
+                name: "Users");
         }
     }
 }

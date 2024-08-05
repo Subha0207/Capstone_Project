@@ -33,7 +33,7 @@ namespace PizzaApp.Services
 
                 var sizeDTO = new SizeDTO
                 {
-
+                    SizeId=size.SizeId,
                     Name = size.Name,
                     Cost = baseCost * size.SizeMultiplier
                 };
@@ -57,9 +57,29 @@ namespace PizzaApp.Services
             var size = await _sizeRepository.GetSizeBySizeId(SizeId);
             if (size == null)
             {
-                throw new Exception("Pizza not found");
+                throw new Exception("Size not found");
             }
             return size;
         }
-    }
+
+        public async Task<int> GetCostBySizeIdAndPizzaId(int pizzaId, int sizeId)
+        {
+            var pizza = await _pizzaRepository.GetPizzaByPizzaId(pizzaId);
+            var baseCost = pizza.Cost;
+
+            var size = await _sizeRepository.GetSizeBySizeId(sizeId);
+            if (size == null)
+            {
+                throw new Exception("Size not found");
+            }
+        
+            var sizeDTO = new SizeDTO
+            {
+                Name = size.Name,
+                Cost = baseCost * size.SizeMultiplier
+            };
+
+            return (int)sizeDTO.Cost;
+        }
+ }
 }

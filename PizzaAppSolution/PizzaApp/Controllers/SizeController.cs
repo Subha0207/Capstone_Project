@@ -38,11 +38,15 @@ namespace PizzaApp.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the crusts.");
             }
         }
-        [HttpGet("{ SizeId}")]
+
+
+
+
+        [HttpGet("{SizeId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<Size>> GetSizeById(int SizeId)
+        public async Task<ActionResult<Size>> GetId(int SizeId)
         {
             try
             {
@@ -63,6 +67,7 @@ namespace PizzaApp.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the pizza.");
             }
         }
+
         [HttpGet("cost{PizzaId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -79,5 +84,28 @@ namespace PizzaApp.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the crusts.");
             }
         }
+        [HttpGet("cost/{pizzaId}/{sizeId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<int>> GetCostBySizeIdAndPizzaId(int pizzaId, int sizeId)
+        {
+            try
+            {
+                var sizeDTO = await _sizeService.GetCostBySizeIdAndPizzaId(pizzaId,sizeId);
+                if (sizeDTO == null)
+                {
+                    return NotFound("Size or Pizza not found.");
+                }
+                return Ok(sizeDTO);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the size cost.");
+            }
+        }
+
+
     }
 }

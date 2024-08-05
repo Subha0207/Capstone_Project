@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace PizzaApp.Models
 {
     public class SizeDTO
-    {public int SizeId { get; set; }
+    {   public int SizeId { get; set; }
         [Required]
         [EnumDataType(typeof(SizeName))]
         public SizeName Name { get; set; }
